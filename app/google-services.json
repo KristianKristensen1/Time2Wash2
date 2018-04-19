@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "787510386480",
+    "firebase_url": "https://time2wash-b092f.firebaseio.com",
+    "project_id": "time2wash-b092f",
+    "storage_bucket": "time2wash-b092f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:787510386480:android:1ee8d8df716a81db",
+        "android_client_info": {
+          "package_name": "com.example.krist.time2washproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "787510386480-jhuflvpgjfbp9r00f67f7qi1ep9cv53d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAe89KpOs0XVWemQy6dmmmSbZPsReX65PE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
