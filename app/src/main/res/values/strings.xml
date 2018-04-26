@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Time2WashProject</string>
+    <string name="user_name_header">User Name:</string>
+    <string name="user_name_default">sup3r us3r 1337</string>
+    <string name="book">Book Time</string>
+    <string name="my_times_header">My Times:</string>
+    <string name="washing_count_header">Washing Count:</string>
+    <string name="washing_count_default">12</string>
 </resources>
