@@ -1,12 +1,16 @@
 package com.example.krist.time2washproject;
 
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,6 +28,7 @@ public class ProfileActivity extends AppCompatActivity {
     private WashingTimeAdaptor washingTimeAdaptor;
     private ListView washingTimeListView;
     MyService myService;
+    Button btBook;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,14 +37,31 @@ public class ProfileActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
+        Intent intent = new Intent(ProfileActivity.this, MyService.class);
+        startService(intent);
+
 
         etUsername = findViewById(R.id.profileActivity_userName_textView);
+        btBook = findViewById(R.id.profileActivity_book_time_button);
 
         etUsername.setText(currentUser.getEmail());
 
+        Intent binderIntent = new Intent(this, MyService.class);
+        bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
+
+        /*
         washingTimeAdaptor = new WashingTimeAdaptor(this, myService.getMyTimes());
         washingTimeListView = findViewById(R.id.profileActivity_myTimes_listView);
         washingTimeListView.setAdapter(washingTimeAdaptor);
+        */
+
+        btBook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent profileIntent = new Intent(ProfileActivity.this, BookingActivity.class);
+                startActivity(profileIntent);
+            }
+        });
 
     }
 
