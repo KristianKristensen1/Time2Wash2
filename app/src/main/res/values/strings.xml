@@ -6,4 +6,9 @@
     <string name="my_times_header">My Times:</string>
     <string name="washing_count_header">Washing Count:</string>
     <string name="washing_count_default">12</string>
+    <string name="machine">machine_header</string>
+    <string name="machine_header">Machine:</string>
+    <string name="date_header">Date:</string>
+    <string name="choose_date">Choose Date</string>
+    <string name="choose_machine">Choose Machine</string>
 </resources>
