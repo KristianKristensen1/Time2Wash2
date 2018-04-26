@@ -21,7 +21,7 @@
         <activity android:name=".BookingActivity" />
 
         <service
-            android:name=".Service"
+            android:name=".MyService"
             android:enabled="true"
             android:exported="true"></service>
     </application>

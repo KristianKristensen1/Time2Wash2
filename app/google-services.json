@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "787510386480-jv688731c8mp71k596d8e8uo4m6683f6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.krist.time2washproject",
+            "certificate_hash": "9dcf081b9fd1651f8e97e27e30df7f9ec92d0277"
+          }
+        },
+        {
           "client_id": "787510386480-jhuflvpgjfbp9r00f67f7qi1ep9cv53d.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "787510386480-jhuflvpgjfbp9r00f67f7qi1ep9cv53d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
