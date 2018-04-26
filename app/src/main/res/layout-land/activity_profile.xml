@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight=".30"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/profileActivity_header_userName_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding"
+            android:text="@string/user_name_header"
+            android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionMode.Title"
+            android:textSize="@dimen/text_size_large" />
+
+        <TextView
+            android:id="@+id/profileActivity_userName_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_bottom"
+            android:padding="@dimen/padding"
+            android:text="@string/user_name_default"
+            android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionMode.Title"
+            android:textSize="@dimen/text_size_medium" />
+
+        <TextView
+            android:id="@+id/profileActivity_header_myTimes_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding"
+            android:text="@string/my_times_header"
+            android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionMode.Title"
+            android:textSize="@dimen/text_size_medium" />
+
+        <ListView
+            android:id="@+id/profileActivity_myTimes_listView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight=".70"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".7"
+            android:orientation="vertical">
+
+
+
+            <TextView
+                android:id="@+id/profileActivity_header_washCount_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="@dimen/padding"
+                android:text="@string/washing_count_header"
+                android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionMode.Title"
+                android:textSize="@dimen/text_size_medium" />
+            <TextView
+                android:id="@+id/profileActivity_washCount_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="@dimen/padding"
+                android:text="@string/washing_count_default"
+                android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionMode.Title"
+                android:textSize="@dimen/text_size_medium" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".1">
+
+            <Button
+                android:id="@+id/profileActivity_book_time_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="@dimen/margin_bottom"
+                android:padding="@dimen/padding"
+                android:text="@string/book"
+                android:textSize="@dimen/text_size_medium"
+                tools:ignore="ButtonStyle" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
