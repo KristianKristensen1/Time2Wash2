@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 <LinearLayout
     android:layout_width="match_parent"
@@ -46,7 +47,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionMode.Title"
             android:textSize="@dimen/text_size_large" />
 
-        <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
+        <!--<com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
             android:id="@+id/bookingActivity_chooseDate_dropDown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -54,7 +55,19 @@
             android:padding="@dimen/padding"
             android:hint="@string/choose_date"
             android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionMode.Title"
-            android:textSize="@dimen/text_size_medium" />
+            android:textSize="@dimen/text_size_medium" />-->
+
+        <Button
+            android:id="@+id/bookingActivity_chooseDate_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="@dimen/margin_bottom"
+            android:padding="@dimen/padding"
+            android:text="@string/choose_date"
+            android:textSize="@dimen/text_size_medium"
+            tools:ignore="ButtonStyle" />
+
     </LinearLayout>
 </LinearLayout>
         <TextView
