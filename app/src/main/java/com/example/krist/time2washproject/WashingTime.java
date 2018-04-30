@@ -1,18 +1,20 @@
 package com.example.krist.time2washproject;
 
+import java.util.Date;
+
 public class WashingTime {
     private String _time;
-    private boolean _booked;
+    private String _date;
     private String _intentAction;
     private int _resultCode;
 
-    public WashingTime(String Time, boolean Booked){
-        this(Time, Booked, null, 0);
+    public WashingTime(String Time, String Date){
+        this(Time, Date, null, 0);
     }
 
-    public WashingTime(String Time, boolean Booked, String WashingTimeAction, int WashingTimeResultCode){
+    public WashingTime(String Time, String Date, String WashingTimeAction, int WashingTimeResultCode){
         _time = Time;
-        _booked = Booked;
+        _date = Date;
         _intentAction = WashingTimeAction;
         _resultCode = WashingTimeResultCode;
     }
@@ -24,11 +26,11 @@ public class WashingTime {
         _time = Time;
     }
 
-    public boolean getBooked(){
-        return _booked;
+    public String getDate(){
+        return _date;
     }
-    public void setBooked(boolean Booked){
-        _booked = Booked;
+    public void setDate(String Date){
+        _date = Date;
     }
 
     public String getIntentAction(){return _intentAction;}

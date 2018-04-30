@@ -18,26 +18,25 @@
 
     <TextView
         android:id="@+id/tvTime"
-        android:layout_width="136dp"
+        android:layout_width="87dp"
         android:layout_height="42dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
         android:text="TextView"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
+        android:textAlignment="viewStart"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@+id/tvDate"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tvVacancy"
-        android:layout_width="106dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="24dp"
+        android:id="@+id/tvDate"
+        android:layout_width="108dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="16dp"
-        android:text="Ledig"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/tvTime"
+        android:text="TextView"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

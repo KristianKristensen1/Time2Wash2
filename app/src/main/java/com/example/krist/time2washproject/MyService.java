@@ -9,7 +9,7 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 
 public class MyService extends Service{
-    ArrayList<WashingTime> myTimes;
+
 
     public class LocalBinder extends Binder {
         MyService getService() {
@@ -20,17 +20,13 @@ public class MyService extends Service{
 
     @Override
     public void onCreate() {
-        myTimes = new ArrayList<>();
+
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
-    }
-
-    public ArrayList<WashingTime> getMyTimes(){
-        return myTimes;
     }
 
 }

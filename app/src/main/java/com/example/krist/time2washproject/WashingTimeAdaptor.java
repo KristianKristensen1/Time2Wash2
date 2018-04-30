@@ -52,13 +52,9 @@ public class WashingTimeAdaptor extends BaseAdapter {
         washingTime = washingTimes.get(position);
         if(washingTime != null){
             TextView tvTime = convertView.findViewById(R.id.tvTime);
-            TextView tvVacancy = convertView.findViewById(R.id.tvVacancy);
+            TextView etDate = convertView.findViewById(R.id.tvDate);
             tvTime.setText(washingTime.getTime());
-            if (washingTime.getBooked()){
-                tvVacancy.setText("Booked");
-            }else{
-                tvVacancy.setText("Vacant");
-            }
+            etDate.setText(washingTime.getDate());
         }
         return convertView;
     }
