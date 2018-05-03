@@ -43,7 +43,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     //Til DB
     private static final String TAG = "bookingActivity debug";
     ArrayList machineList;
-    ArrayList bookedTimes;
+    ArrayList<WashingTime> bookedTimes;
     String selectedMachineName;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     String date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
@@ -54,9 +54,9 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking);
         machineList = new ArrayList();
+        bookedTimes = new ArrayList<>();
         findViews();
         setDropDowns();
-        updateListview();
 
         bookingActivity_chooseDate_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,9 +78,6 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     protected void onStart() {
 
         super.onStart();
-        //Test linjer til DB
-        //lav lokale vaskemaskine objekter?
-
         CollectionReference WashingMachineRef = db.collection("washing_machines"); // Kan bruges til at hente tider? og måske ens egne tider nested
         WashingMachineRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -132,8 +129,9 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         myFragment.show(getSupportFragmentManager(), "date picker");
     }
     public void LoadTimes(){
+        //Indsæt her at den skal loade de tider der er bookede. Måske tilføje en onEventListener? lave filter så den kun henter relevant dato
 
-        CollectionReference BookedTimesRef = db.collection("washing_machines").document("UltraWasher2000").collection("BookedTimes");
+        CollectionReference BookedTimesRef = db.collection("washing_machines").document(selectedMachineName).collection("BookedTimes");
         Query query = BookedTimesRef.whereEqualTo("Date", "Test");
 
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -143,24 +141,20 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
                         Log.d(TAG,document.getId() + "=>" + document.getData());
-                        WashingMachine washingMachineTest = document.toObject(WashingMachine.class);
-                        Log.d(TAG,"" + washingMachineTest.getName());
-                        //machineList.add(washingMachineTest.getName());
-
+                        WashingTime washingTime = document.toObject(WashingTime.class);
+                        bookedTimes.add(washingTime);
                     }
                 }else{
                     Toast.makeText(getActivity(),"something went wrong",Toast.LENGTH_LONG);
                 }
+                updateListview();
             }
+
         });
     }
 
-    public void showVacantTimes(){
-
-    }
-
-    public void updateListview(){
-        final ArrayList<WashingTime> WashingTimeArrayList = new ArrayList<>();
+    public ArrayList<WashingTime> showVacantTimes(){
+        ArrayList<WashingTime> WashingTimeArrayList = new ArrayList<>();
         //Hardcoded list with My booked times for test
         for(int i = 0; i < 7; i++){
             WashingTimeArrayList.add(new WashingTime("This is the time", "01.05.2018", "Machine1"));
@@ -172,6 +166,24 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         WashingTimeArrayList.set(4, new WashingTime("kl. 16-18", date,"Machine1", 4));
         WashingTimeArrayList.set(5, new WashingTime("kl. 18-20", date,"Machine1", 5));
         WashingTimeArrayList.set(6, new WashingTime("kl. 20-22", date,"Machine1", 6));
+        for (int i = 0; i<bookedTimes.size(); i++){
+            for (int j = 0; j<WashingTimeArrayList.size(); j++){
+                if (bookedTimes.get(i).getTime().equals(WashingTimeArrayList.get(j).getTime()))
+                    WashingTimeArrayList.remove(j);
+            }
+        }
+        return WashingTimeArrayList;
+
+    }
+
+    public void updateListview(){
+        ArrayList<WashingTime> WashingTimeArrayList = showVacantTimes();
+        //Hardcoded list with My booked times for test
+
+        washingTimeAdaptor = new WashingTimeAdaptor(this, WashingTimeArrayList);
+        washingTimeListView = findViewById(R.id.bookingActivity_availableTimes_listView);
+        washingTimeListView.setAdapter(washingTimeAdaptor);
+
         washingTimeAdaptor = new WashingTimeAdaptor(this, WashingTimeArrayList);
         washingTimeListView = findViewById(R.id.bookingActivity_availableTimes_listView);
         washingTimeListView.setAdapter(washingTimeAdaptor);
