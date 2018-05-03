@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -25,11 +26,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import dialog.zoftino.com.dialog.MyDatePickerFragment;
 
 public class BookingActivity extends AppCompatActivity {
-    //String[] machineList = {"Vask1", "Vask2", "Tør1", "Tør2"};//, dateList = {"Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"};
     ArrayAdapter<String> machineArrayAdapter, dateArrayAdapter;
     MaterialBetterSpinner machineBetterSpinner, dateBetterSpinner;
     Button bookingActivity_chooseDate_button;
@@ -40,8 +41,8 @@ public class BookingActivity extends AppCompatActivity {
     //Til DB
     private static final String TAG = "bookingActivity debug";
     ArrayList machineList;
+    String selectedMachineName;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,6 @@ public class BookingActivity extends AppCompatActivity {
         machineList = new ArrayList();
         findViews();
         setDropDowns();
-
 
         final ArrayList<WashingTime> WashingTimeArrayList = new ArrayList<>();
         //Hardcoded list with My booked times for test
@@ -72,6 +72,13 @@ public class BookingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showDatePicker(v);
+            }
+        });
+
+        machineBetterSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectedMachineName = machineList.get(position).toString();
             }
         });
     }
@@ -96,6 +103,7 @@ public class BookingActivity extends AppCompatActivity {
                         machineList.add(washingMachineTest.getName());
 
                     }
+                    selectedMachineName = machineList.get(0).toString();
                 }else{
                     Toast.makeText(getActivity(),"something went wrong",Toast.LENGTH_LONG);
                 }
@@ -113,17 +121,14 @@ public class BookingActivity extends AppCompatActivity {
     /*https://www.youtube.com/watch?v=x6HtXktAoew*/
     private void setDropDowns() {
         machineArrayAdapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, machineList);
-        //dateArrayAdapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, dateList);
         machineBetterSpinner = bookingActivity_chooseMachine_dropDown;
         dateBetterSpinner = bookingActivity_chooseDate_dropDown;
         machineBetterSpinner.setAdapter(machineArrayAdapter);
-//        dateBetterSpinner.setAdapter(dateArrayAdapter);
     }
 
     private void findViews() {
         bookingActivity_chooseMachine_dropDown = findViewById(R.id.bookingActivity_chooseMachine_dropDown);
         bookingActivity_chooseDate_button = findViewById(R.id.bookingActivity_chooseDate_button);
-        //bookingActivity_chooseDate_dropDown = findViewById(R.id.bookingActivity_chooseDate_dropDown);
     }
 
     //http://www.zoftino.com/android-datepicker-example
@@ -141,7 +146,7 @@ public class BookingActivity extends AppCompatActivity {
     }
     public void LoadTimes(){
 
-        Query WashingMachineRef = db.collection("washing_machines").whereEqualTo("Name","UltraWasher2000").whereEqualTo("Date", "13/05/2017"); // Kan bruges til at hente tider? og måske ens egne tider nested
+        Query WashingMachineRef = db.collection("washing_machines").whereEqualTo("Name",selectedMachineName).whereEqualTo("Date", "13/05/2017"); // Kan bruges til at hente tider? og måske ens egne tider nested
         WashingMachineRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {

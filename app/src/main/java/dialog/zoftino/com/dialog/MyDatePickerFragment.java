@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.widget.DatePicker;
 import android.widget.Toast;
+
+import com.example.krist.time2washproject.BookingActivity;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -20,7 +23,6 @@ public class MyDatePickerFragment extends DialogFragment {
         int year = c.get(Calendar.YEAR);
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
-
         /*https://stackoverflow.com/questions/16749361/how-set-maximum-date-in-datepicker-dialog-in-android*/
         /*https://android--code.blogspot.dk/2015/08/android-datepickerdialog-set-max-date.html*/
         DatePickerDialog dialog = new DatePickerDialog(this.getContext(), dateSetListener, year, month, day);
