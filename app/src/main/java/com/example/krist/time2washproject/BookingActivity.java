@@ -6,14 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -33,8 +32,7 @@ import java.util.Locale;
 
 import dialog.zoftino.com.dialog.MyDatePickerFragment;
 
-public class BookingActivity extends FragmentActivity {
-    //String[] machineList = {"Vask1", "Vask2", "Tør1", "Tør2"};//, dateList = {"Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"};
+public class BookingActivity extends AppCompatActivity implements MyDatePickerFragment.DatePickerFragmentListener {
     ArrayAdapter<String> machineArrayAdapter, dateArrayAdapter;
     MaterialBetterSpinner machineBetterSpinner, dateBetterSpinner;
     Button bookingActivity_chooseDate_button;
@@ -46,16 +44,16 @@ public class BookingActivity extends FragmentActivity {
     private static final String TAG = "bookingActivity debug";
     ArrayList machineList;
     ArrayList bookedTimes;
+    String selectedMachineName;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     String date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
-    MyDatePickerFragment myFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking);
         machineList = new ArrayList();
-        bookedTimes = new ArrayList();
         findViews();
         setDropDowns();
         updateListview();
@@ -64,13 +62,25 @@ public class BookingActivity extends FragmentActivity {
             @Override
             public void onClick(View v) {
                 showDatePicker(v);
+
+            }
+        });
+
+        machineBetterSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectedMachineName = machineList.get(position).toString();
             }
         });
     }
 
     @Override
     protected void onStart() {
+
         super.onStart();
+        //Test linjer til DB
+        //lav lokale vaskemaskine objekter?
+
         CollectionReference WashingMachineRef = db.collection("washing_machines"); // Kan bruges til at hente tider? og måske ens egne tider nested
         WashingMachineRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -84,6 +94,7 @@ public class BookingActivity extends FragmentActivity {
                         machineList.add(washingMachineTest.getName());
 
                     }
+                    selectedMachineName = machineList.get(0).toString();
                 }else{
                     Toast.makeText(getActivity(),"something went wrong",Toast.LENGTH_LONG);
                 }
@@ -105,7 +116,7 @@ public class BookingActivity extends FragmentActivity {
         machineBetterSpinner = bookingActivity_chooseMachine_dropDown;
         dateBetterSpinner = bookingActivity_chooseDate_dropDown;
         machineBetterSpinner.setAdapter(machineArrayAdapter);
-        //dateBetterSpinner.setAdapter(dateArrayAdapter);
+//        dateBetterSpinner.setAdapter(dateArrayAdapter);
     }
 
     private void findViews() {
@@ -116,7 +127,8 @@ public class BookingActivity extends FragmentActivity {
 
     //http://www.zoftino.com/android-datepicker-example
     public void showDatePicker(View v) {
-        myFragment = new MyDatePickerFragment();
+        //MyDatePickerFragment myFragment = new MyDatePickerFragment();
+        MyDatePickerFragment myFragment = MyDatePickerFragment.newInstance(this);
         myFragment.show(getSupportFragmentManager(), "date picker");
     }
     public void LoadTimes(){
@@ -131,8 +143,10 @@ public class BookingActivity extends FragmentActivity {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
                         Log.d(TAG,document.getId() + "=>" + document.getData());
-                        WashingTime washingTime = document.toObject(WashingTime.class);
-                        bookedTimes.add(washingTime);
+                        WashingMachine washingMachineTest = document.toObject(WashingMachine.class);
+                        Log.d(TAG,"" + washingMachineTest.getName());
+                        //machineList.add(washingMachineTest.getName());
+
                     }
                 }else{
                     Toast.makeText(getActivity(),"something went wrong",Toast.LENGTH_LONG);
@@ -165,5 +179,15 @@ public class BookingActivity extends FragmentActivity {
 
     public Context getActivity() {
         return activity;
+    }
+
+    public void setDate(String Date){
+        date = Date;
+    }
+
+    @Override
+    public void onDateSet(Date date) {
+        Date test = date;
+        // This method will be called with the date from the `DatePicker`.
     }
 }
