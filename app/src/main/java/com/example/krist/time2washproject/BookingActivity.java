@@ -186,8 +186,8 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     }
 
     @Override
-    public void onDateSet(Date date) {
-        Date test = date;
+    public void onDateSet(String Date) {
+        date = Date;
         // This method will be called with the date from the `DatePicker`.
     }
 }

@@ -16,7 +16,7 @@ import java.util.Date;
 /*
 http://www.zoftino.com/android-datepicker-example
 */
-public class MyDatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener{
+public class MyDatePickerFragment extends DialogFragment{
     String date;
 
     public static MyDatePickerFragment newInstance(DatePickerFragmentListener listener) {
@@ -27,7 +27,7 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
 
     private DatePickerFragmentListener datePickerListener;
     public interface DatePickerFragmentListener {
-        public void onDateSet(Date date);
+        public void onDateSet(String date);
 
     }
 
@@ -39,7 +39,7 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
         this.datePickerListener = listener;
     }
 
-    protected void notifyDatePickerListener(Date date) {
+    protected void notifyDatePickerListener(String date) {
         if(this.datePickerListener != null) {
             this.datePickerListener.onDateSet(date);
         }
@@ -63,21 +63,13 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
         return dialog;
     }
 
+
     private DatePickerDialog.OnDateSetListener dateSetListener =
             new DatePickerDialog.OnDateSetListener() {
                 public void onDateSet(DatePicker view, int year, int month, int day) {
                     date = "" + view.getDayOfMonth() + "/" + (view.getMonth()+1) + "/" + view.getYear();
                     Toast.makeText(getActivity(), "selected date is " + date, Toast.LENGTH_SHORT).show();
+                    notifyDatePickerListener(date);
                 }
             };
-
-    @Override
-    public void onDateSet(DatePicker view, int year, int month, int day) {
-        Calendar c = Calendar.getInstance();
-        c.set(year, month, day);
-        Date date = c.getTime();
-
-        // Here we call the listener and pass the date back to it.
-        notifyDatePickerListener(date);
-    }
 }
