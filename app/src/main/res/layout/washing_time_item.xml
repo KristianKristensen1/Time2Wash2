@@ -20,7 +20,7 @@
         android:id="@+id/tvTime"
         android:layout_width="87dp"
         android:layout_height="42dp"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="12dp"
         android:layout_marginTop="16dp"
         android:text="TextView"
         android:textAlignment="viewStart"
@@ -30,13 +30,24 @@
 
     <TextView
         android:id="@+id/tvDate"
-        android:layout_width="108dp"
+        android:layout_width="92dp"
         android:layout_height="42dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="12dp"
         android:layout_marginTop="16dp"
         android:text="TextView"
         android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvMachine"
+        android:layout_width="87dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="TextView"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@+id/tvTime"
         app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

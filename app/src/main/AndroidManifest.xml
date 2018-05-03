@@ -19,6 +19,7 @@
         <activity android:name=".RegisterUserActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".BookingActivity" />
+        <activity android:name=".myBookingPopup" android:theme="@style/AppTheme.CustomTheme" />
 
         <service
             android:name=".MyService"

@@ -1,21 +1,23 @@
 package com.example.krist.time2washproject;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class WashingTime {
+public class WashingTime implements Serializable {
     private String _time;
     private String _date;
+    private String _machine;
     private String _intentAction;
     private int _resultCode;
 
-    public WashingTime(String Time, String Date){
-        this(Time, Date, null, 0);
+    public WashingTime(String Time, String Date, String Machine){
+        this(Time, Date, Machine, 0);
     }
 
-    public WashingTime(String Time, String Date, String WashingTimeAction, int WashingTimeResultCode){
+    public WashingTime(String Time, String Date, String Machine, int WashingTimeResultCode){
         _time = Time;
         _date = Date;
-        _intentAction = WashingTimeAction;
+        _machine = Machine;
         _resultCode = WashingTimeResultCode;
     }
 
@@ -32,6 +34,14 @@ public class WashingTime {
     public void setDate(String Date){
         _date = Date;
     }
+
+    public String getMachine(){
+        return _machine;
+    }
+    public void setMachine(String Machine){
+        _machine = Machine;
+    }
+
 
     public String getIntentAction(){return _intentAction;}
 
