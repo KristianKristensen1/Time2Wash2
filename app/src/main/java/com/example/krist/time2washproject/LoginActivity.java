@@ -11,11 +11,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -64,6 +70,24 @@ public class LoginActivity extends AppCompatActivity {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
+
+                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                    Map<String, Object> userToDatabase = new HashMap<>();
+                                    userToDatabase.put("UserEmail",user.getEmail());
+                                    userToDatabase.put("UserID",user.getUid());
+
+                                    db.collection("users").document(user.getEmail()).set(userToDatabase).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d(TAG,"wuhuu der er skrevet til DB");
+                                        }
+                                    }).addOnCanceledListener(new OnCanceledListener() {
+                                        @Override
+                                        public void onCanceled() {
+                                            Log.d(TAG,"Desværre");
+                                        }
+                                    });
+
                                     //updateUI(user);
 
                                     Intent profileIntent = new Intent(LoginActivity.this, ProfileActivity.class);

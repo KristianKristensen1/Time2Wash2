@@ -5,7 +5,9 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -13,6 +15,13 @@ import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
 
 import java.util.ArrayList;
@@ -20,19 +29,25 @@ import java.util.ArrayList;
 import dialog.zoftino.com.dialog.MyDatePickerFragment;
 
 public class BookingActivity extends AppCompatActivity {
-    String[] machineList = {"Vask1", "Vask2", "Tør1", "Tør2"};//, dateList = {"Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"};
+    //String[] machineList = {"Vask1", "Vask2", "Tør1", "Tør2"};//, dateList = {"Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"};
     ArrayAdapter<String> machineArrayAdapter, dateArrayAdapter;
     MaterialBetterSpinner machineBetterSpinner, dateBetterSpinner;
     Button bookingActivity_chooseDate_button;
     com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner bookingActivity_chooseMachine_dropDown, bookingActivity_chooseDate_dropDown;
-    private WashingTimeAdaptor washingTimeAdaptor;
+    private  WashingTimeAdaptor washingTimeAdaptor;
     private ListView washingTimeListView;
     Context activity;
+    //Til DB
+    private static final String TAG = "bookingActivity debug";
+    ArrayList machineList;
+    final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking);
+        machineList = new ArrayList();
         findViews();
         setDropDowns();
 
@@ -60,6 +75,40 @@ public class BookingActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onStart() {
+
+        super.onStart();
+        //Test linjer til DB
+        //lav lokale vaskemaskine objekter?
+
+        CollectionReference WashingMachineRef = db.collection("washing_machines"); // Kan bruges til at hente tider? og måske ens egne tider nested
+        WashingMachineRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
+                        Log.d(TAG,document.getId() + "=>" + document.getData());
+                        WashingMachine washingMachineTest = document.toObject(WashingMachine.class);
+                        Log.d(TAG,"" + washingMachineTest.getName());
+                        machineList.add(washingMachineTest.getName());
+
+                    }
+                }else{
+                    Toast.makeText(getActivity(),"something went wrong",Toast.LENGTH_LONG);
+                }
+                setDropDowns();
+                LoadTimes();
+
+            }
+        });
+        //Query washQuery = WashingMachineRef.whereEqualTo("InUse",true);
+        //String[] machineListTest = washQuery.get().getResult().getDocuments().toArray();
+
+    }
+
 
     /*https://www.youtube.com/watch?v=x6HtXktAoew*/
     private void setDropDowns() {
@@ -92,6 +141,25 @@ public class BookingActivity extends AppCompatActivity {
     }
     public void LoadTimes(){
 
+        Query WashingMachineRef = db.collection("washing_machines").whereEqualTo("Name","UltraWasher2000").whereEqualTo("Date", "13/05/2017"); // Kan bruges til at hente tider? og måske ens egne tider nested
+        WashingMachineRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
+                        Log.d(TAG,document.getId() + "=>" + document.getData());
+                        WashingMachine washingMachineTest = document.toObject(WashingMachine.class);
+                        Log.d(TAG,"" + washingMachineTest.getName());
+                        //machineList.add(washingMachineTest.getName());
+
+                    }
+                }else{
+                    Toast.makeText(getActivity(),"something went wrong",Toast.LENGTH_LONG);
+                }
+
+            }
+        });
     }
 
     public Context getActivity() {

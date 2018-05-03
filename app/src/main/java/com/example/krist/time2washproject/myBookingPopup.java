@@ -27,7 +27,7 @@ public class myBookingPopup extends Activity {
         Bundle extras = getIntent().getExtras();
         WashingTime wt = (WashingTime) extras.getSerializable("testag");
 
-        tvTimeOfBooking.setText(wt.getDate() + wt.getTime());
+        tvTimeOfBooking.setText(wt.getDate() + " " + wt.getTime());
         tvNameOfMachine.setText(wt.getMachine());
 
         //https://www.youtube.com/watch?v=fn5OlqQuOCk

@@ -25,7 +25,7 @@
 
     <TextView
         android:id="@+id/myBookingPopUp_timeOfBooking_tv"
-        android:layout_width="122dp"
+        android:layout_width="155dp"
         android:layout_height="34dp"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/textView2"
@@ -33,7 +33,7 @@
 
     <TextView
         android:id="@+id/myBookingPopUp_Machine_tv"
-        android:layout_width="123dp"
+        android:layout_width="155dp"
         android:layout_height="34dp"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/textView3"
@@ -54,6 +54,5 @@
         android:layout_height="59dp"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/myBookingPopUp_Cancel_btn"
-        android:layout_marginEnd="25dp"
         android:text="OK" />
 </RelativeLayout>
