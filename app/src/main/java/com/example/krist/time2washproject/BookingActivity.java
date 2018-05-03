@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -24,11 +26,14 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import dialog.zoftino.com.dialog.MyDatePickerFragment;
 
-public class BookingActivity extends AppCompatActivity {
+public class BookingActivity extends FragmentActivity {
     //String[] machineList = {"Vask1", "Vask2", "Tør1", "Tør2"};//, dateList = {"Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"};
     ArrayAdapter<String> machineArrayAdapter, dateArrayAdapter;
     MaterialBetterSpinner machineBetterSpinner, dateBetterSpinner;
@@ -40,33 +45,20 @@ public class BookingActivity extends AppCompatActivity {
     //Til DB
     private static final String TAG = "bookingActivity debug";
     ArrayList machineList;
+    ArrayList bookedTimes;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+    String date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+    MyDatePickerFragment myFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking);
         machineList = new ArrayList();
+        bookedTimes = new ArrayList();
         findViews();
         setDropDowns();
-
-
-        final ArrayList<WashingTime> WashingTimeArrayList = new ArrayList<>();
-        //Hardcoded list with My booked times for test
-        for(int i = 0; i < 7; i++){
-            WashingTimeArrayList.add(new WashingTime("This is the time", "01.05.2018", "Machine1"));
-        }
-        WashingTimeArrayList.set(0, new WashingTime("kl. 8-10", "01.05.2018", "Machine1", 0));
-        WashingTimeArrayList.set(1, new WashingTime("kl. 10-12", "01.05.2018","Machine1", 1));
-        WashingTimeArrayList.set(2, new WashingTime("kl. 12-14", "01.05.2018","Machine1", 2));
-        WashingTimeArrayList.set(3, new WashingTime("kl. 14-16", "01.05.2018","Machine1", 3));
-        WashingTimeArrayList.set(4, new WashingTime("kl. 16-18", "01.05.2018","Machine1", 4));
-        WashingTimeArrayList.set(5, new WashingTime("kl. 18-20", "01.05.2018","Machine1", 5));
-        WashingTimeArrayList.set(6, new WashingTime("kl. 20-22", "01.05.2018","Machine1", 6));
-        washingTimeAdaptor = new WashingTimeAdaptor(this, WashingTimeArrayList);
-        washingTimeListView = findViewById(R.id.bookingActivity_availableTimes_listView);
-        washingTimeListView.setAdapter(washingTimeAdaptor);
+        updateListview();
 
         bookingActivity_chooseDate_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,11 +70,7 @@ public class BookingActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-
         super.onStart();
-        //Test linjer til DB
-        //lav lokale vaskemaskine objekter?
-
         CollectionReference WashingMachineRef = db.collection("washing_machines"); // Kan bruges til at hente tider? og måske ens egne tider nested
         WashingMachineRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -117,7 +105,7 @@ public class BookingActivity extends AppCompatActivity {
         machineBetterSpinner = bookingActivity_chooseMachine_dropDown;
         dateBetterSpinner = bookingActivity_chooseDate_dropDown;
         machineBetterSpinner.setAdapter(machineArrayAdapter);
-//        dateBetterSpinner.setAdapter(dateArrayAdapter);
+        //dateBetterSpinner.setAdapter(dateArrayAdapter);
     }
 
     private void findViews() {
@@ -128,38 +116,51 @@ public class BookingActivity extends AppCompatActivity {
 
     //http://www.zoftino.com/android-datepicker-example
     public void showDatePicker(View v) {
-        MyDatePickerFragment myFragment = new MyDatePickerFragment();
+        myFragment = new MyDatePickerFragment();
         myFragment.show(getSupportFragmentManager(), "date picker");
-
-        new DatePickerDialog.OnDateSetListener() {
-            public void onDateSet(DatePicker view, int year, int month, int day) {
-                Toast.makeText(getActivity(), "selected date is " + view.getYear() +
-                        " / " + (view.getMonth() + 1) +
-                        " / " + view.getDayOfMonth(), Toast.LENGTH_SHORT).show();
-            }
-        };
     }
     public void LoadTimes(){
 
-        Query WashingMachineRef = db.collection("washing_machines").whereEqualTo("Name","UltraWasher2000").whereEqualTo("Date", "13/05/2017"); // Kan bruges til at hente tider? og måske ens egne tider nested
-        WashingMachineRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        CollectionReference BookedTimesRef = db.collection("washing_machines").document("UltraWasher2000").collection("BookedTimes");
+        Query query = BookedTimesRef.whereEqualTo("Date", "Test");
+
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
                         Log.d(TAG,document.getId() + "=>" + document.getData());
-                        WashingMachine washingMachineTest = document.toObject(WashingMachine.class);
-                        Log.d(TAG,"" + washingMachineTest.getName());
-                        //machineList.add(washingMachineTest.getName());
-
+                        WashingTime washingTime = document.toObject(WashingTime.class);
+                        bookedTimes.add(washingTime);
                     }
                 }else{
                     Toast.makeText(getActivity(),"something went wrong",Toast.LENGTH_LONG);
                 }
-
             }
         });
+    }
+
+    public void showVacantTimes(){
+
+    }
+
+    public void updateListview(){
+        final ArrayList<WashingTime> WashingTimeArrayList = new ArrayList<>();
+        //Hardcoded list with My booked times for test
+        for(int i = 0; i < 7; i++){
+            WashingTimeArrayList.add(new WashingTime("This is the time", "01.05.2018", "Machine1"));
+        }
+        WashingTimeArrayList.set(0, new WashingTime("kl. 8-10", date, "Machine1", 0));
+        WashingTimeArrayList.set(1, new WashingTime("kl. 10-12", date,"Machine1", 1));
+        WashingTimeArrayList.set(2, new WashingTime("kl. 12-14", date,"Machine1", 2));
+        WashingTimeArrayList.set(3, new WashingTime("kl. 14-16", date,"Machine1", 3));
+        WashingTimeArrayList.set(4, new WashingTime("kl. 16-18", date,"Machine1", 4));
+        WashingTimeArrayList.set(5, new WashingTime("kl. 18-20", date,"Machine1", 5));
+        WashingTimeArrayList.set(6, new WashingTime("kl. 20-22", date,"Machine1", 6));
+        washingTimeAdaptor = new WashingTimeAdaptor(this, WashingTimeArrayList);
+        washingTimeListView = findViewById(R.id.bookingActivity_availableTimes_listView);
+        washingTimeListView.setAdapter(washingTimeAdaptor);
     }
 
     public Context getActivity() {

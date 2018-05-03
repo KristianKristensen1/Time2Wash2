@@ -4,50 +4,50 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class WashingTime implements Serializable {
-    private String _time;
-    private String _date;
-    private String _machine;
-    private String _intentAction;
+    private String Date;
+    private String Machine;
+    private String Time;
     private int _resultCode;
 
-    public WashingTime(String Time, String Date, String Machine){
-        this(Time, Date, Machine, 0);
+    public WashingTime() {
     }
 
-    public WashingTime(String Time, String Date, String Machine, int WashingTimeResultCode){
-        _time = Time;
-        _date = Date;
-        _machine = Machine;
+    public WashingTime(String _time, String _date, String _machine) {
+        this.Date = _time;
+        this.Machine = _date;
+        this.Time = _time;
+        _resultCode = 0;
+    }
+
+    public WashingTime(String _time, String _date, String _machine, int WashingTimeResultCode) {
+        this.Date = _date;
+        this.Machine = _machine;
+        this.Time = _time;
         _resultCode = WashingTimeResultCode;
     }
 
-    public String getTime(){
-        return _time;
-    }
-    public void setTime(String Time){
-        _time = Time;
+    public String getTime() {
+        return Time;
     }
 
-    public String getDate(){
-        return _date;
-    }
-    public void setDate(String Date){
-        _date = Date;
+    public void setTime(String _time) {
+        this.Time = _time;
     }
 
-    public String getMachine(){
-        return _machine;
-    }
-    public void setMachine(String Machine){
-        _machine = Machine;
+    public String getDate() {
+        return Date;
     }
 
+    public void setDate(String _date) {
+        this.Date = _date;
+    }
 
-    public String getIntentAction(){return _intentAction;}
+    public String getMachine() {
+        return Machine;
+    }
 
-    public void setIntentAction(String intentAction){_intentAction = intentAction;}
-
-    public int getDResultCode(){return _resultCode;}
-
-    public void setResultCode(int resultCode){_resultCode = resultCode;}
+    public void setMachine(String _machine) {
+        this.Machine = _machine;
+    }
 }
+

@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,8 +17,14 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
@@ -50,19 +58,29 @@ public class ProfileActivity extends AppCompatActivity {
         Intent binderIntent = new Intent(this, MyService.class);
         bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        //lav lokale vaskemaskine objekter?
 
+        CollectionReference WashingMyTimeRef = db.collection("users").document(currentUser.getEmail()).collection("MyTimes"); // Kan bruges til at hente tider? og måske ens egne tider nested
+        WashingMyTimeRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
+                        //Log.d(TAG,document.getId() + "=>" + document.getData());
+                        WashingTime washingTimeTest = document.toObject(WashingTime.class);
+                        Log.d("Test","" + washingTimeTest.getMachine() + " " + washingTimeTest.getDate() + " " + washingTimeTest.getTime());
+                        myTimes.add(washingTimeTest);
 
-        //Hardcoded list with My booked times for test
-        for(int i = 0; i < 7; i++){
-            myTimes.add(new WashingTime("This is the time", "01.05.2018", "Machine1"));
-        }
-        myTimes.set(0, new WashingTime("kl. 8-10", "01.05.2018", "Machine1", 0));
-        myTimes.set(1, new WashingTime("kl. 10-12", "01.05.2018","Machine2", 1));
-        myTimes.set(2, new WashingTime("kl. 12-14", "01.05.2018","Machine3", 2));
-        myTimes.set(3, new WashingTime("kl. 14-16", "01.05.2018","Machine4", 3));
-        myTimes.set(4, new WashingTime("kl. 16-18", "01.05.2018","Machine5", 4));
-        myTimes.set(5, new WashingTime("kl. 18-20", "01.05.2018","Machine6", 5));
-        myTimes.set(6, new WashingTime("kl. 20-22", "01.05.2018","Machine7", 6));
+                    }
+                }else{
+                    Log.d("Test", "something whent wrong getting myTimes");
+                }
+                washingTimeAdaptor.notifyDataSetChanged();
+            }
+        });
+
         washingTimeAdaptor = new WashingTimeAdaptor(this, myTimes);
         washingTimeListView = findViewById(R.id.profileActivity_myTimes_listView);
         washingTimeListView.setAdapter(washingTimeAdaptor);
