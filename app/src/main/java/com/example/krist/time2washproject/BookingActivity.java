@@ -36,17 +36,19 @@ public class BookingActivity extends AppCompatActivity {
         findViews();
         setDropDowns();
 
+
         final ArrayList<WashingTime> WashingTimeArrayList = new ArrayList<>();
+        //Hardcoded list with My booked times for test
         for(int i = 0; i < 7; i++){
-            WashingTimeArrayList.add(new WashingTime("This is the time", "01.05.2018"));
+            WashingTimeArrayList.add(new WashingTime("This is the time", "01.05.2018", "Machine1"));
         }
-        WashingTimeArrayList.set(0, new WashingTime("kl. 8-10", "01.05.2018", "com.example.krist.vaskemaskinetider.BOOK", 0));
-        WashingTimeArrayList.set(1, new WashingTime("kl. 10-12", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 1));
-        WashingTimeArrayList.set(2, new WashingTime("kl. 12-14", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 2));
-        WashingTimeArrayList.set(3, new WashingTime("kl. 14-16", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 3));
-        WashingTimeArrayList.set(4, new WashingTime("kl. 16-18", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 4));
-        WashingTimeArrayList.set(5, new WashingTime("kl. 18-20", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 5));
-        WashingTimeArrayList.set(6, new WashingTime("kl. 20-22", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 6));
+        WashingTimeArrayList.set(0, new WashingTime("kl. 8-10", "01.05.2018", "Machine1", 0));
+        WashingTimeArrayList.set(1, new WashingTime("kl. 10-12", "01.05.2018","Machine1", 1));
+        WashingTimeArrayList.set(2, new WashingTime("kl. 12-14", "01.05.2018","Machine1", 2));
+        WashingTimeArrayList.set(3, new WashingTime("kl. 14-16", "01.05.2018","Machine1", 3));
+        WashingTimeArrayList.set(4, new WashingTime("kl. 16-18", "01.05.2018","Machine1", 4));
+        WashingTimeArrayList.set(5, new WashingTime("kl. 18-20", "01.05.2018","Machine1", 5));
+        WashingTimeArrayList.set(6, new WashingTime("kl. 20-22", "01.05.2018","Machine1", 6));
         washingTimeAdaptor = new WashingTimeAdaptor(this, WashingTimeArrayList);
         washingTimeListView = findViewById(R.id.bookingActivity_availableTimes_listView);
         washingTimeListView.setAdapter(washingTimeAdaptor);

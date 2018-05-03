@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -55,15 +54,15 @@ public class ProfileActivity extends AppCompatActivity {
 
         //Hardcoded list with My booked times for test
         for(int i = 0; i < 7; i++){
-            myTimes.add(new WashingTime("This is the time", "01.05.2018"));
+            myTimes.add(new WashingTime("This is the time", "01.05.2018", "Machine1"));
         }
-        myTimes.set(0, new WashingTime("kl. 8-10", "01.05.2018", "com.example.krist.vaskemaskinetider.BOOK", 0));
-        myTimes.set(1, new WashingTime("kl. 10-12", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 1));
-        myTimes.set(2, new WashingTime("kl. 12-14", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 2));
-        myTimes.set(3, new WashingTime("kl. 14-16", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 3));
-        myTimes.set(4, new WashingTime("kl. 16-18", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 4));
-        myTimes.set(5, new WashingTime("kl. 18-20", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 5));
-        myTimes.set(6, new WashingTime("kl. 20-22", "01.05.2018","com.example.krist.vaskemaskinetider.BOOK", 6));
+        myTimes.set(0, new WashingTime("kl. 8-10", "01.05.2018", "Machine1", 0));
+        myTimes.set(1, new WashingTime("kl. 10-12", "01.05.2018","Machine2", 1));
+        myTimes.set(2, new WashingTime("kl. 12-14", "01.05.2018","Machine3", 2));
+        myTimes.set(3, new WashingTime("kl. 14-16", "01.05.2018","Machine4", 3));
+        myTimes.set(4, new WashingTime("kl. 16-18", "01.05.2018","Machine5", 4));
+        myTimes.set(5, new WashingTime("kl. 18-20", "01.05.2018","Machine6", 5));
+        myTimes.set(6, new WashingTime("kl. 20-22", "01.05.2018","Machine7", 6));
         washingTimeAdaptor = new WashingTimeAdaptor(this, myTimes);
         washingTimeListView = findViewById(R.id.profileActivity_myTimes_listView);
         washingTimeListView.setAdapter(washingTimeAdaptor);
@@ -72,7 +71,11 @@ public class ProfileActivity extends AppCompatActivity {
         washingTimeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                Intent startMyBookingMenuIntent = new Intent(ProfileActivity.this, myBookingPopup.class);
+                WashingTime wt = myTimes.get(position);
+                startMyBookingMenuIntent.putExtra("testag", wt);
+                startActivity(startMyBookingMenuIntent);
+                //startActivity(new Intent(ProfileActivity.this, myBookingPopup.class));
             }
         });
 
