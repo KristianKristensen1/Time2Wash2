@@ -41,6 +41,7 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
     }
     public static String[] channelID = {"24","1","Now","Done"};
 
+public class MyDatePickerFragment extends DialogFragment{
     String date;
     //public Boolean dateIsSet = false;
 
@@ -54,6 +55,7 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
 
     public interface DatePickerFragmentListener {
         void onDateSet(Date date);
+        public void onDateSet(String date);
 
     }
 
@@ -67,6 +69,8 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
 
     protected void notifyDatePickerListener(Date date) {
         if (this.datePickerListener != null) {
+    protected void notifyDatePickerListener(String date) {
+        if(this.datePickerListener != null) {
             this.datePickerListener.onDateSet(date);
         }
     }
@@ -94,6 +98,7 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
     public void onDateSet(DatePicker view, int year, int month, int day) {
 
     }
+
 
     private DatePickerDialog.OnDateSetListener dateSetListener =
             new DatePickerDialog.OnDateSetListener() {
@@ -145,4 +150,9 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, cDone.getTimeInMillis(), pendingIntentDone);
         }
     }
+                    date = "" + view.getDayOfMonth() + "/" + (view.getMonth()+1) + "/" + view.getYear();
+                    Toast.makeText(getActivity(), "selected date is " + date, Toast.LENGTH_SHORT).show();
+                    notifyDatePickerListener(date);
+                }
+            };
 }
