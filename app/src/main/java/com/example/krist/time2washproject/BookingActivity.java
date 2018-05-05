@@ -39,7 +39,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner bookingActivity_chooseMachine_dropDown, bookingActivity_chooseDate_dropDown;
     private  WashingTimeAdaptor washingTimeAdaptor;
     private ListView washingTimeListView;
-    Context activity;
+    static Context activity;
     //Til DB
     private static final String TAG = "bookingActivity debug";
     ArrayList machineList;
@@ -57,6 +57,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         findViews();
         setDropDowns();
         updateListview();
+        activity = BookingActivity.this;
 
         bookingActivity_chooseDate_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,7 +178,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         washingTimeListView.setAdapter(washingTimeAdaptor);
     }
 
-    public Context getActivity() {
+    public static Context getActivity() {
         return activity;
     }
 
