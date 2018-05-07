@@ -77,6 +77,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedMachineName = machineList.get(position).toString();
+                LoadTimes();
             }
         });
         washingTimeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -126,10 +127,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         if(selectedMachineName!=null){
             LoadTimes();
         }
-
-
     }
-
 
     /*https://www.youtube.com/watch?v=x6HtXktAoew*/
     private void setDropDowns() {
@@ -156,7 +154,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     }
     public void LoadTimes(){
         //Indsæt her at den skal loade de tider der er bookede. Måske tilføje en onEventListener? lave filter så den kun henter relevant dato
-
+        bookedTimes = new ArrayList<>();
         CollectionReference BookedTimesRef = db.collection("washing_machines").document(selectedMachineName).collection("BookedTimes");
         Query query = BookedTimesRef.whereEqualTo("Date", date);
 
@@ -173,6 +171,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
                 }else{
                     Toast.makeText(getActivity(),"something went wrong",Toast.LENGTH_LONG);
                 }
+                showVacantTimes();
                 updateListview();
             }
 
@@ -180,7 +179,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     }
 
 
-    public ArrayList<WashingTime> showVacantTimes(){
+    public void showVacantTimes(){
         ArrayList<WashingTime> WashingTimeArrayList = new ArrayList<>();
         //Hardcoded list with My booked times for test
         for(int i = 0; i < 7; i++){
@@ -200,12 +199,11 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
             }
         }
         vacantTimes = WashingTimeArrayList;
-        return WashingTimeArrayList;
 
     }
 
     public void updateListview(){
-        ArrayList<WashingTime> WashingTimeArrayList = showVacantTimes();
+        ArrayList<WashingTime> WashingTimeArrayList = vacantTimes;
         //Hardcoded list with My booked times for test
 
         washingTimeAdaptor = new WashingTimeAdaptor(this, WashingTimeArrayList);
@@ -223,6 +221,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
 
     public void setDate(String Date){
         date = Date;
+        LoadTimes();
     }
 
     @Override
