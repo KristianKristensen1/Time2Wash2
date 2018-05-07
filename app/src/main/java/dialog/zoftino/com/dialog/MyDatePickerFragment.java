@@ -68,7 +68,7 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
         this.datePickerListener = listener;
     }
 
-    protected void notifyDatePickerListener(Date date) {
+    protected void notifyDatePickerListener(String date) {
         if (this.datePickerListener != null) {
             this.datePickerListener.onDateSet(date);
         }
@@ -104,7 +104,7 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
                     Calendar c = Calendar.getInstance();
                     c.set(year, month, day);
 
-                    Date date = c.getTime();
+                    String date = c.getTime().toString();
                     // Here we call the listener and pass the date back to it.
                     notifyDatePickerListener(date);
                     startAlarm(c);
