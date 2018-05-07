@@ -70,26 +70,6 @@ public class LoginActivity extends AppCompatActivity {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
-
-                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                                    Map<String, Object> userToDatabase = new HashMap<>();
-                                    userToDatabase.put("UserEmail",user.getEmail());
-                                    userToDatabase.put("UserID",user.getUid());
-
-                                    db.collection("users").document(user.getEmail()).set(userToDatabase).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d(TAG,"wuhuu der er skrevet til DB");
-                                        }
-                                    }).addOnCanceledListener(new OnCanceledListener() {
-                                        @Override
-                                        public void onCanceled() {
-                                            Log.d(TAG,"Desværre");
-                                        }
-                                    });
-
-                                    //updateUI(user);
-
                                     Intent profileIntent = new Intent(LoginActivity.this, ProfileActivity.class);
                                     startActivity(profileIntent);
                                 } else {

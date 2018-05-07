@@ -16,6 +16,8 @@ import java.util.Date;
 /*
 http://www.zoftino.com/android-datepicker-example
 */
+
+//https://stackoverflow.com/questions/24558835/how-can-i-pass-the-date-chosen-in-a-date-picker-to-the-activity-which-contains-t
 public class MyDatePickerFragment extends DialogFragment{
     String date;
 

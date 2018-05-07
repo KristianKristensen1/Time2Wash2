@@ -17,19 +17,18 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class myBookingPopup extends Activity {
+public class BookTimePopup extends Activity {
 
-    private static final String TAG = "BookTime debug";
     Button btnOK;
     Button btnCancel;
     TextView tvTimeOfBooking;
     TextView tvNameOfMachine;
+    private static final String TAG = "BookTime debug";
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +39,7 @@ public class myBookingPopup extends Activity {
         tvNameOfMachine = findViewById(R.id.myBookingPopUp_Machine_tv);
 
         Bundle extras = getIntent().getExtras();
-        final WashingTime wt = (WashingTime) extras.getSerializable("testag");
+        final WashingTime wt = (WashingTime) extras.getSerializable("chosenWashTime");
 
         tvTimeOfBooking.setText(wt.getDate() + " " + wt.getTime());
         tvNameOfMachine.setText(wt.getMachine());
@@ -55,40 +54,43 @@ public class myBookingPopup extends Activity {
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                BookTime(wt.getDate(),wt.getTime(),wt.getMachine());
             }
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                removeTime(wt.getDate(),wt.getTime(),wt.getMachine());
+                finish();
             }
         });
     }
-    public void removeTime(String chosenDate, String chosentime, String chosenMachine){
+    public void BookTime(String chosenDate, String chosentime, final String chosenMachine)//Sende machine og date og tid med?
+    {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final String docNameMachine = chosenDate + chosentime;
-        final String docNameUser = chosenMachine + chosenDate + chosentime;
-        DocumentReference BookingTimesRef = db.collection("washing_machines").document(chosenMachine).collection("BookedTimes").document(docNameMachine);
-        BookingTimesRef.delete().addOnCompleteListener(new OnCompleteListener<Void>(){
+        CollectionReference BookingTimesRef = db.collection("washing_machines").document(chosenMachine).collection("BookedTimes");
+        final Map<String, Object> BookedTime = new HashMap<>();
+        BookedTime.put("Date",chosenDate);
+        BookedTime.put("Time",chosentime);
+        final String myTime = chosenMachine + chosenDate + chosentime;
+        BookingTimesRef.document(chosenDate + chosentime).set(BookedTime).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    Log.d(TAG,"Time deleted");
+                    Log.d(TAG,"Time has been booked");
                     FirebaseAuth mAuth = FirebaseAuth.getInstance();
                     FirebaseUser currentUser = mAuth.getCurrentUser();
-                    db.collection("users").document(currentUser.getEmail()).collection("MyTimes").document(docNameUser).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    BookedTime.put("Machine",chosenMachine);
+                    db.collection("users").document(currentUser.getEmail()).collection("MyTimes").document(myTime).set(BookedTime).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Log.d(TAG, "Time deleted from MyTimes");
+                            if (task.isSuccessful()){
+                                Log.d(TAG,"Time is now in MyTimes aswell");
                                 finish();
                             }
                         }
                     });
                 }else {
-                    Log.d(TAG,"Something went wrong deleting time");
+                    Log.d(TAG,"Something went wrong booking time");
                 }
             }
         });
