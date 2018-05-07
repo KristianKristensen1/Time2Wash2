@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -37,6 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ListView washingTimeListView;
     MyService myService;
     Button btBook;
+    FirebaseUser currentUser;
 
 
     @Override
@@ -44,42 +46,18 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        currentUser = mAuth.getCurrentUser();
 
         Intent intent = new Intent(ProfileActivity.this, MyService.class);
         startService(intent);
 
-
         etUsername = findViewById(R.id.profileActivity_userName_textView);
         btBook = findViewById(R.id.profileActivity_book_time_button);
+        etUsername.setText(currentUser.getDisplayName());
 
-        etUsername.setText(currentUser.getEmail());
 
         Intent binderIntent = new Intent(this, MyService.class);
         bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        //lav lokale vaskemaskine objekter?
-
-        CollectionReference WashingMyTimeRef = db.collection("users").document(currentUser.getEmail()).collection("MyTimes"); // Kan bruges til at hente tider? og måske ens egne tider nested
-        WashingMyTimeRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
-                        //Log.d(TAG,document.getId() + "=>" + document.getData());
-                        WashingTime washingTimeTest = document.toObject(WashingTime.class);
-                        Log.d("Test","" + washingTimeTest.getMachine() + " " + washingTimeTest.getDate() + " " + washingTimeTest.getTime());
-                        myTimes.add(washingTimeTest);
-
-                    }
-                }else{
-                    Log.d("Test", "something whent wrong getting myTimes");
-                }
-                washingTimeAdaptor.notifyDataSetChanged();
-            }
-        });
 
         washingTimeAdaptor = new WashingTimeAdaptor(this, myTimes);
         washingTimeListView = findViewById(R.id.profileActivity_myTimes_listView);
@@ -93,7 +71,6 @@ public class ProfileActivity extends AppCompatActivity {
                 WashingTime wt = myTimes.get(position);
                 startMyBookingMenuIntent.putExtra("testag", wt);
                 startActivity(startMyBookingMenuIntent);
-                //startActivity(new Intent(ProfileActivity.this, myBookingPopup.class));
             }
         });
 
@@ -106,6 +83,12 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadMyTimes();
     }
 
     /*https://www.youtube.com/watch?v=dvWrniwBJUw*/
@@ -125,6 +108,9 @@ public class ProfileActivity extends AppCompatActivity {
                 FirebaseAuth.getInstance().signOut();
                 finish();
                 break;
+
+            case R.id.Change:
+
         }
         return true;
     }
@@ -142,4 +128,34 @@ public class ProfileActivity extends AppCompatActivity {
         public void onServiceDisconnected(ComponentName arg0) {
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    public void loadMyTimes(){
+        myTimes = new ArrayList<>();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference WashingMyTimeRef = db.collection("users").document(currentUser.getEmail()).collection("MyTimes"); // Kan bruges til at hente tider? og måske ens egne tider nested
+        WashingMyTimeRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
+                        //Log.d(TAG,document.getId() + "=>" + document.getData());
+                        WashingTime washingTimeTest = document.toObject(WashingTime.class);
+                        Log.d("Test","" + washingTimeTest.getMachine() + " " + washingTimeTest.getDate() + " " + washingTimeTest.getTime());
+                        myTimes.add(washingTimeTest);
+
+                    }
+                }else{
+                    Log.d("Test", "something whent wrong getting myTimes");
+                }
+                washingTimeAdaptor.washingTimes = myTimes;
+                washingTimeAdaptor.notifyDataSetChanged();
+            }
+        });
+    }
 }

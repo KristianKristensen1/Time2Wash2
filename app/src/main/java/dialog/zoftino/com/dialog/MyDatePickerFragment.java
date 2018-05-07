@@ -23,6 +23,9 @@ import java.util.Date;
 /*
 http://www.zoftino.com/android-datepicker-example
 */
+
+//https://stackoverflow.com/questions/24558835/how-can-i-pass-the-date-chosen-in-a-date-picker-to-the-activity-which-contains-t
+
 public class MyDatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
     Context myContext = BookingActivity.getActivity();
 
@@ -53,7 +56,7 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
     private DatePickerFragmentListener datePickerListener;
 
     public interface DatePickerFragmentListener {
-        void onDateSet(Date date);
+        public void onDateSet(String date);
 
     }
 
