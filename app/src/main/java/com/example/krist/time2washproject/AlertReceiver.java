@@ -10,6 +10,7 @@ import android.support.v4.app.NotificationCompat;
 
 import dialog.zoftino.com.dialog.MyDatePickerFragment;
 
+//https://www.youtube.com/watch?v=yrpimdBRk5Q&list=PLrnPJCHvNZuDR7-cBjRXssxYK0Y5EEKzr&index=3
 public class AlertReceiver extends BroadcastReceiver {
     NotificationHelper notificationHelper;
     String channelName;
@@ -23,11 +24,14 @@ public class AlertReceiver extends BroadcastReceiver {
         if (notificationHelper == null) {
             notificationHelper = new NotificationHelper(context);
         }
+
+        String[] channelIDs = MyDatePickerFragment.getChannelID();
+
         indexID = MyDatePickerFragment.getIndexID();
-        if (indexID > 3) {
+        if (indexID > channelIDs.length-1) {
             indexID = 0;
         }
-        String[] channelIDs = MyDatePickerFragment.getChannelID();
+
         switch (channelIDs[indexID]) {
             case "24":
                 channelName = "Channel 24h";

@@ -9,6 +9,7 @@ import android.content.ContextWrapper;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
+//https://www.youtube.com/watch?v=ub4_f6ksxL0&list=PLrnPJCHvNZuDR7-cBjRXssxYK0Y5EEKzr&index=1
 public class NotificationHelper extends ContextWrapper {
     private NotificationManager notificationManager;
 
