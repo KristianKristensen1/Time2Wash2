@@ -43,7 +43,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     private  WashingTimeAdaptor washingTimeAdaptor;
     private ListView washingTimeListView;
 
-    Context activity;
+    static Context activity;
     //Til DB
     private static final String TAG = "bookingActivity debug";
     ArrayList machineList;
@@ -64,6 +64,8 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         vacantTimes = new ArrayList<>();
         findViews();
         setDropDowns();
+        updateListview();
+        activity = BookingActivity.this;
 
         bookingActivity_chooseDate_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +97,9 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     protected void onStart() {
 
         super.onStart();
+        //Test linjer til DB
+        //lav lokale vaskemaskine objekter?
+
         CollectionReference WashingMachineRef = db.collection("washing_machines"); // Kan bruges til at hente tider? og måske ens egne tider nested
         WashingMachineRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -215,7 +220,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         // washingTimeListView.setAdapter(washingTimeAdaptor);
     }
 
-    public Context getActivity() {
+    public static Context getActivity() {
         return activity;
     }
 
