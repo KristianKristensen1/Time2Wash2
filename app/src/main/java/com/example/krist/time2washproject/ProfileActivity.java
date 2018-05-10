@@ -129,9 +129,14 @@ public class ProfileActivity extends AppCompatActivity {
         }
     };
 
+    //https://stackoverflow.com/questions/14001963/finish-all-activities-at-a-time
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("EXIT", true);
+        startActivity(intent);
     }
 
     public void loadMyTimes(){

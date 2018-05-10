@@ -224,14 +224,10 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         return activity;
     }
 
-    public void setDate(String Date){
-        date = Date;
-        LoadTimes();
-    }
-
     @Override
     public void onDateSet(String Date) {
         date = Date;
+        LoadTimes();
         // This method will be called with the date from the `DatePicker`.
     }
 }

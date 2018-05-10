@@ -17,8 +17,10 @@ import com.example.krist.time2washproject.BookingActivity;
 import com.example.krist.time2washproject.NotificationHelper;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /*
 http://www.zoftino.com/android-datepicker-example
@@ -103,13 +105,9 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
                 public void onDateSet(DatePicker view, int year, int month, int day) {
                     Calendar c = Calendar.getInstance();
                     c.set(year, month, day);
-
-                    String date = c.getTime().toString();
-                    // Here we call the listener and pass the date back to it.
+                    String date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(c.getTime());
                     notifyDatePickerListener(date);
                     startAlarm(c);
-                    /*date = "" + view.getDayOfMonth() + "/" + (view.getMonth() + 1) + "/" + view.getYear();
-                    Toast.makeText(getActivity(), "selected date is " + date, Toast.LENGTH_SHORT).show();*/
                 }
             };
 
