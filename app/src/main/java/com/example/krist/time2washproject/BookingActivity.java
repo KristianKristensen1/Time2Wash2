@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -20,7 +21,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -42,6 +46,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner bookingActivity_chooseMachine_dropDown, bookingActivity_chooseDate_dropDown;
     private  WashingTimeAdaptor washingTimeAdaptor;
     private ListView washingTimeListView;
+    ListenerRegistration eventListener;
 
     static Context activity;
     //Til DB
@@ -95,7 +100,6 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
 
     @Override
     protected void onStart() {
-
         super.onStart();
         //Test linjer til DB
         //lav lokale vaskemaskine objekter?
@@ -126,7 +130,15 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         //String[] machineListTest = washQuery.get().getResult().getDocuments().toArray();
 
     }
+
     @Override
+    protected void onStop(){
+        super.onStop();
+        eventListener.remove();
+    }
+
+
+        @Override
     protected void onResume() {
         super.onResume();
         if(selectedMachineName!=null){
@@ -158,29 +170,27 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         myFragment.show(getSupportFragmentManager(), "date picker");
     }
     public void LoadTimes(){
-        //Indsæt her at den skal loade de tider der er bookede. Måske tilføje en onEventListener? lave filter så den kun henter relevant dato
-        bookedTimes = new ArrayList<>();
-        CollectionReference BookedTimesRef = db.collection("washing_machines").document(selectedMachineName).collection("BookedTimes");
-        Query query = BookedTimesRef.whereEqualTo("Date", date);
-
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
-                        Log.d(TAG,document.getId() + "=>" + document.getData());
-                        WashingTime washingTime = document.toObject(WashingTime.class);
-                        bookedTimes.add(washingTime);
+        Query bookedTimesQuery  = db.collection("washing_machines").document(selectedMachineName).collection("BookedTimes");
+        eventListener = bookedTimesQuery
+                .whereEqualTo("Date",date)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.d(TAG, "Listen failed.", e);
+                            return;
+                        }
+                        bookedTimes = new ArrayList<>();
+                        for(QueryDocumentSnapshot document : queryDocumentSnapshots){
+                            Log.d(TAG,document.getId() + "=>" + document.getData());
+                            WashingTime washingTime = document.toObject(WashingTime.class);
+                            bookedTimes.add(washingTime);
+                        }
+                        showVacantTimes();
+                        updateListview();
                     }
-                }else{
-                    Toast.makeText(getActivity(),"something went wrong",Toast.LENGTH_LONG);
-                }
-                showVacantTimes();
-                updateListview();
-            }
+                });
 
-        });
     }
 
 
