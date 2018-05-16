@@ -59,26 +59,19 @@ public class AlertReceiver extends BroadcastReceiver {
                 channelTitle = "All Done!";
                 channelMessage = "Your Wash Time has now ended";
                 channelImage = R.drawable.ic_happy;
+
+                // TODO: 16-05-2018 Fjern booket tid (start her, flyt til service) 
                 break;
         }
         MyDatePickerFragment.setIndexID(indexID + 1);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationHelper.CreateChannels(channelIDs[indexID], channelName);
-            /*notificationHelper.CreateChannels(channel1ID, channel1Name);
-            notificationHelper.CreateChannels(channelNowID, channelNowName);
-            notificationHelper.CreateChannels(channelDoneID, channelDoneName);*/
         }
 
         NotificationCompat.Builder builder = notificationHelper.getChannelNotification(channelIDs[indexID], channelTitle, channelMessage, channelImage);
-        /*NotificationCompat.Builder builder1 = notificationHelper.getChannelNotification(channel1ID, channel1Title, channel1Message, channel1Image);
-        NotificationCompat.Builder builderNow = notificationHelper.getChannelNotification(channelNowID, channelNowTitle, channelNowMessage, channelNowImage);
-        NotificationCompat.Builder builderDone = notificationHelper.getChannelNotification(channelDoneID, channelDoneTitle, channelDoneMessage, channelDoneImage);*/
 
-        notificationHelper.getNotificationManager().notify(indexID, builder.build());/*
-        notificationHelper.getNotificationManager().notify(2, builder1.build());
-        notificationHelper.getNotificationManager().notify(3, builderNow.build());
-        notificationHelper.getNotificationManager().notify(4, builderDone.build());*/
+        notificationHelper.getNotificationManager().notify(indexID, builder.build());
     }
 }
 

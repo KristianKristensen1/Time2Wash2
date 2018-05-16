@@ -18,6 +18,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +32,9 @@ public class BookTimePopup extends Activity {
     TextView tvTimeOfBooking;
     TextView tvNameOfMachine;
     private static final String TAG = "BookTime debug";
+    AlarmSwitch alarmSwitch;
+    Calendar calendar;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +43,8 @@ public class BookTimePopup extends Activity {
         btnOK = findViewById(R.id.myBookingPopUP_OK_btn);
         tvTimeOfBooking = findViewById(R.id.myBookingPopUp_timeOfBooking_tv);
         tvNameOfMachine = findViewById(R.id.myBookingPopUp_Machine_tv);
+        alarmSwitch = new AlarmSwitch();
+        calendar = Calendar.getInstance();
 
         Bundle extras = getIntent().getExtras();
         final WashingTime wt = (WashingTime) extras.getSerializable("chosenWashTime");
@@ -49,12 +57,23 @@ public class BookTimePopup extends Activity {
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         int width = dm.widthPixels;
         int height = dm.heightPixels;
-        getWindow().setLayout((int) (width*0.7), (int)(height*0.5));
+        getWindow().setLayout((int) (width * 0.7), (int) (height * 0.5));
 
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BookTime(wt.getDate(),wt.getTime(),wt.getMachine());
+                int time;
+                Date date;
+                BookTime(wt.getDate(), wt.getTime(), wt.getMachine());
+                time = alarmSwitch.handleTimeInput(wt.getTime());
+                try {
+                    date = alarmSwitch.handleDateInput(wt.getDate());
+                    calendar.setTime(date);
+                    calendar.set(Calendar.HOUR_OF_DAY, time);
+                    alarmSwitch.startAlarm(calendar);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -64,33 +83,34 @@ public class BookTimePopup extends Activity {
             }
         });
     }
+
     public void BookTime(String chosenDate, String chosentime, final String chosenMachine)//Sende machine og date og tid med?
     {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference BookingTimesRef = db.collection("washing_machines").document(chosenMachine).collection("BookedTimes");
         final Map<String, Object> BookedTime = new HashMap<>();
-        BookedTime.put("Date",chosenDate);
-        BookedTime.put("Time",chosentime);
+        BookedTime.put("Date", chosenDate);
+        BookedTime.put("Time", chosentime);
         final String myTime = chosenMachine + chosenDate + chosentime;
         BookingTimesRef.document(chosenDate + chosentime).set(BookedTime).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
-                    Log.d(TAG,"Time has been booked");
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "Time has been booked");
                     FirebaseAuth mAuth = FirebaseAuth.getInstance();
                     FirebaseUser currentUser = mAuth.getCurrentUser();
-                    BookedTime.put("Machine",chosenMachine);
+                    BookedTime.put("Machine", chosenMachine);
                     db.collection("users").document(currentUser.getEmail()).collection("MyTimes").document(myTime).set(BookedTime).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                Log.d(TAG,"Time is now in MyTimes aswell");
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "Time is now in MyTimes aswell");
                                 finish();
                             }
                         }
                     });
-                }else {
-                    Log.d(TAG,"Something went wrong booking time");
+                } else {
+                    Log.d(TAG, "Something went wrong booking time");
                 }
             }
         });

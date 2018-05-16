@@ -29,7 +29,6 @@ http://www.zoftino.com/android-datepicker-example
 //https://stackoverflow.com/questions/24558835/how-can-i-pass-the-date-chosen-in-a-date-picker-to-the-activity-which-contains-t
 
 public class MyDatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
-    Context myContext = BookingActivity.getActivity();
 
     public static int getIndexID() {
         return indexID;
@@ -44,10 +43,9 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
     public static String[] getChannelID() {
         return channelID;
     }
-    public static String[] channelID = {"24","1","Now","Done"};
 
-    String date;
-    //public Boolean dateIsSet = false;
+    public static String[] channelID = {"24", "1", "Now", "Done"};
+
 
     public static MyDatePickerFragment newInstance(DatePickerFragmentListener listener) {
         MyDatePickerFragment fragment = new MyDatePickerFragment();
@@ -107,43 +105,6 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
                     c.set(year, month, day);
                     String date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(c.getTime());
                     notifyDatePickerListener(date);
-                    startAlarm(c);
                 }
             };
-
-    private void startAlarm(Calendar c) {
-        AlarmManager alarmManager = (AlarmManager) myContext.getSystemService(Context.ALARM_SERVICE);
-        Calendar c24 = Calendar.getInstance();
-        c24.setTimeInMillis(c.getTimeInMillis());
-        c24.add(Calendar.HOUR, -24);
-
-        Calendar c1 = Calendar.getInstance();
-        c1.setTimeInMillis(c.getTimeInMillis());
-        c1.add(Calendar.HOUR, -1);
-
-        Calendar cNow = Calendar.getInstance();
-        cNow.setTimeInMillis(c.getTimeInMillis());
-
-        Calendar cDone = Calendar.getInstance();
-        cDone.setTimeInMillis(c.getTimeInMillis());
-        cDone.add(Calendar.HOUR, 2);
-
-        if (alarmManager != null) {
-            Intent alarmIntent24 = new Intent(myContext, AlertReceiver.class);
-            PendingIntent pendingIntent24 = PendingIntent.getBroadcast(myContext, 1, alarmIntent24, 0);
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, c24.getTimeInMillis(), pendingIntent24);
-
-            Intent alarmIntent1 = new Intent(myContext, AlertReceiver.class);
-            PendingIntent pendingIntent1 = PendingIntent.getBroadcast(myContext, 2, alarmIntent1, 0);
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, c1.getTimeInMillis(), pendingIntent1);
-
-            Intent alarmIntentNow = new Intent(myContext, AlertReceiver.class);
-            PendingIntent pendingIntentNow = PendingIntent.getBroadcast(myContext, 3, alarmIntentNow, 0);
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, cNow.getTimeInMillis(), pendingIntentNow);
-
-            Intent alarmIntentDone = new Intent(myContext, AlertReceiver.class);
-            PendingIntent pendingIntentDone = PendingIntent.getBroadcast(myContext, 4, alarmIntentDone, 0);
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, cDone.getTimeInMillis(), pendingIntentDone);
-        }
-    }
 }
