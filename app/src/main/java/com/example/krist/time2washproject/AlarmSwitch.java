@@ -68,4 +68,24 @@ public class AlarmSwitch {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, cDone.getTimeInMillis(), pendingIntentDone);
         }
     }
+
+    public void cancelAlarm(){
+        AlarmManager alarmManager = (AlarmManager) myContext.getSystemService(Context.ALARM_SERVICE);
+
+        Intent alarmIntent24 = new Intent(myContext, AlertReceiver.class);
+        PendingIntent pendingIntent24 = PendingIntent.getBroadcast(myContext, 1, alarmIntent24, 0);
+        alarmManager.cancel(pendingIntent24);
+
+        Intent alarmIntent1 = new Intent(myContext, AlertReceiver.class);
+        PendingIntent pendingIntent1 = PendingIntent.getBroadcast(myContext, 2, alarmIntent1, 0);
+        alarmManager.cancel(pendingIntent1);
+
+        Intent alarmIntentNow = new Intent(myContext, AlertReceiver.class);
+        PendingIntent pendingIntentNow = PendingIntent.getBroadcast(myContext, 3, alarmIntentNow, 0);
+        alarmManager.cancel(pendingIntentNow);
+
+        Intent alarmIntentDone = new Intent(myContext, AlertReceiver.class);
+        PendingIntent pendingIntentDone = PendingIntent.getBroadcast(myContext, 4, alarmIntentDone, 0);
+        alarmManager.cancel(pendingIntentDone);
+    }
 }

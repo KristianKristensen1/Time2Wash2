@@ -30,6 +30,7 @@ public class myBookingPopup extends Activity {
     Button btnCancel;
     TextView tvTimeOfBooking;
     TextView tvNameOfMachine;
+    AlarmSwitch alarmSwitch;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +39,7 @@ public class myBookingPopup extends Activity {
         btnOK = findViewById(R.id.myBookingPopUP_OK_btn);
         tvTimeOfBooking = findViewById(R.id.myBookingPopUp_timeOfBooking_tv);
         tvNameOfMachine = findViewById(R.id.myBookingPopUp_Machine_tv);
+        alarmSwitch = new AlarmSwitch();
 
         Bundle extras = getIntent().getExtras();
         final WashingTime wt = (WashingTime) extras.getSerializable("testag");
@@ -83,6 +85,7 @@ public class myBookingPopup extends Activity {
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "Time deleted from MyTimes");
+                                alarmSwitch.cancelAlarm();
                                 finish();
                             }
                         }
