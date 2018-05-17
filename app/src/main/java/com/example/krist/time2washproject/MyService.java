@@ -12,7 +12,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -22,6 +25,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.Mac;
 
@@ -30,6 +35,11 @@ public class MyService extends Service{
     public static final String serviceTaskLoadBookedTimes = "loadingBookedTimes";
     public static final String serviceTaskLoadMachineNames = "loadingMachineNames";
     public static final String serviceTaskLoadMyTimes = "loadingMyTimes";
+    public static final String serviceTaskBookTime = "bookTime";
+    public static final String serviceTaskDeleteTime = "deleteTime";
+    public static final String serviceDatabaseFail = "databaseFail";
+
+    AlarmSwitch alarmSwitch;
 
 
     private static final String TAG = "service debug";
@@ -48,6 +58,7 @@ public class MyService extends Service{
 
     @Override
     public void onCreate() {
+        alarmSwitch = new AlarmSwitch();
         bookedTimes4Realz = new ArrayList<>();
     }
 
@@ -130,8 +141,65 @@ public class MyService extends Service{
                 });
     }
 
-    public void deleTimes(){
+    public void deleTimes(String chosenDate, String chosentime, final String chosenMachine){
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final String docNameMachine = chosenDate + chosentime;
+        final String docNameUser = chosenMachine + chosenDate + chosentime;
+        DocumentReference BookingTimesRef = db.collection("washing_machines").document(chosenMachine).collection("BookedTimes").document(docNameMachine);
+        BookingTimesRef.delete().addOnCompleteListener(new OnCompleteListener<Void>(){
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Log.d(TAG,"Time deleted");
+                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                    FirebaseUser currentUser = mAuth.getCurrentUser();
+                    db.collection("users").document(currentUser.getEmail()).collection("MyTimes").document(docNameUser).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "Time deleted from MyTimes");
+//                                alarmSwitch.cancelAlarm();
+                                BroadcastSender(serviceTaskDeleteTime);
+                            }
+                        }
+                    });
+                }else {
+                    Log.d(TAG,"Something went wrong deleting time");
+                }
+            }
+        });
+    }
 
+    public void bookTime(String chosenDate, String chosentime, final String chosenMachine){
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference BookingTimesRef = db.collection("washing_machines").document(chosenMachine).collection("BookedTimes");
+        final Map<String, Object> BookedTime = new HashMap<>();
+        BookedTime.put("Date", chosenDate);
+        BookedTime.put("Time", chosentime);
+        final String myTime = chosenMachine + chosenDate + chosentime;
+        BookingTimesRef.document(chosenDate + chosentime).set(BookedTime).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "Time has been booked");
+                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                    FirebaseUser currentUser = mAuth.getCurrentUser();
+                    BookedTime.put("Machine", chosenMachine);
+                    db.collection("users").document(currentUser.getEmail()).collection("MyTimes").document(myTime).set(BookedTime).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "Time is now in MyTimes aswell");
+                                BroadcastSender(serviceTaskBookTime);
+                            }
+                        }
+                    });
+                } else {
+                    Log.d(TAG, "Something went wrong booking time");
+                    BroadcastSender(serviceDatabaseFail);
+                }
+            }
+        });
     }
 
     public void BroadcastSender(String Result) {

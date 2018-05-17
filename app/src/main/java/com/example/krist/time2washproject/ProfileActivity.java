@@ -50,17 +50,9 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-
-        Intent intent = new Intent(ProfileActivity.this, MyService.class);
-        startService(intent);
-
         etUsername = findViewById(R.id.profileActivity_userName_textView);
         btBook = findViewById(R.id.profileActivity_book_time_button);
         etUsername.setText(currentUser.getDisplayName());
-
-
-        Intent binderIntent = new Intent(this, MyService.class);
-        bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
 
         washingTimeAdaptor = new WashingTimeAdaptor(this, myTimes);
         washingTimeListView = findViewById(R.id.profileActivity_myTimes_listView);
@@ -76,8 +68,6 @@ public class ProfileActivity extends AppCompatActivity {
                 startActivity(startMyBookingMenuIntent);
             }
         });
-
-
         btBook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,23 +75,19 @@ public class ProfileActivity extends AppCompatActivity {
                 startActivity(profileIntent);
             }
         });
-
         filter.addAction(myService.serviceTaskLoadMyTimes);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Intent binderIntent = new Intent(this, MyService.class);
-        bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
-        LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult, filter);
-        //myService.loadMyTimes(currentUser.getEmail());
-
+        if (myService == null){
+            Intent binderIntent = new Intent(this, MyService.class);
+            bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
+            LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult, filter);
+        }else{
+            myService.loadMyTimes(currentUser.getEmail());
+        }
     }
 
     /*https://www.youtube.com/watch?v=dvWrniwBJUw*/
@@ -114,7 +100,6 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         switch (id)
         {
             case R.id.logout:
@@ -123,7 +108,6 @@ public class ProfileActivity extends AppCompatActivity {
                 break;
 
             case R.id.Change:
-
         }
         return true;
     }
@@ -153,42 +137,14 @@ public class ProfileActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void loadMyTimes(){
-        /*
-        myTimes = new ArrayList<>();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference WashingMyTimeRef = db.collection("users").document(currentUser.getEmail()).collection("MyTimes"); // Kan bruges til at hente tider? og måske ens egne tider nested
-        WashingMyTimeRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
-                        //Log.d(TAG,document.getId() + "=>" + document.getData());
-                        WashingTime washingTimeTest = document.toObject(WashingTime.class);
-                        Log.d("Test","" + washingTimeTest.getMachine() + " " + washingTimeTest.getDate() + " " + washingTimeTest.getTime());
-                        myTimes.add(washingTimeTest);
-
-                    }
-                }else{
-                    Log.d("Test", "something whent wrong getting myTimes");
-                }
-                washingTimeAdaptor.washingTimes = myTimes;
-                washingTimeAdaptor.notifyDataSetChanged();
-            }
-        });
-        */
-    }
     private BroadcastReceiver onBackgroundServiceResult = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             String result = intent.getAction();
             if(result==null){
                 //Handle error
             }
                 handleBackgroundResult(result);}
-
     };
     private void handleBackgroundResult(String result){
 
@@ -197,5 +153,11 @@ public class ProfileActivity extends AppCompatActivity {
             washingTimeAdaptor.washingTimes = myTimes;
             washingTimeAdaptor.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(mConnection);
     }
 }

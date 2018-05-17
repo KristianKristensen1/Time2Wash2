@@ -110,54 +110,17 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     @Override
     protected void onStart() {
         super.onStart();
-        /*
-        //Test linjer til DB
-        //lav lokale vaskemaskine objekter?
-
-        CollectionReference WashingMachineRef = db.collection("washing_machines"); // Kan bruges til at hente tider? og måske ens egne tider nested
-        WashingMachineRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
-                        Log.d(TAG,document.getId() + "=>" + document.getData());
-                        WashingMachine washingMachineTest = document.toObject(WashingMachine.class);
-                        Log.d(TAG,"" + washingMachineTest.getName());
-                        machineList.add(washingMachineTest.getName());
-
-                    }
-                    selectedMachineName = machineList.get(0).toString();
-                }else{
-                    Toast.makeText(getActivity(),"something went wrong",Toast.LENGTH_LONG);
-                }
-                setDropDowns();
-                LoadTimes();
-
-            }
-        });
-        //Query washQuery = WashingMachineRef.whereEqualTo("InUse",true);
-        //String[] machineListTest = washQuery.get().getResult().getDocuments().toArray();
-        */
-        Intent binderIntent = new Intent(this, MyService.class);
-        bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
-        LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult, filter);
-
+        if (myService == null){
+            Intent binderIntent = new Intent(this, MyService.class);
+            bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
+            LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult, filter);
+        }
     }
 
     @Override
     protected void onStop(){
         super.onStop();
         //eventListener.remove();
-    }
-
-
-        @Override
-    protected void onResume() {
-        super.onResume();
-        if(selectedMachineName!=null){
-            //LoadTimes();
-        }
     }
 
     /*https://www.youtube.com/watch?v=x6HtXktAoew*/
@@ -183,31 +146,6 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         MyDatePickerFragment myFragment = MyDatePickerFragment.newInstance(this);
         myFragment.show(getSupportFragmentManager(), "date picker");
     }
-    public void LoadTimes(){
-        /*
-        Query bookedTimesQuery  = db.collection("washing_machines").document(selectedMachineName).collection("BookedTimes");
-        eventListener = bookedTimesQuery
-                .whereEqualTo("Date",date)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            Log.d(TAG, "Listen failed.", e);
-                            return;
-                        }
-                        bookedTimes = new ArrayList<>();
-                        for(QueryDocumentSnapshot document : queryDocumentSnapshots){
-                            Log.d(TAG,document.getId() + "=>" + document.getData());
-                            WashingTime washingTime = document.toObject(WashingTime.class);
-                            bookedTimes.add(washingTime);
-                        }
-                        showVacantTimes();
-                        updateListview();
-                    }
-                });
-                */
-    }
-
 
     public void showVacantTimes(){
         ArrayList<WashingTime> WashingTimeArrayList = new ArrayList<>();
@@ -297,5 +235,11 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
             updateListview();
             myService.loadBookedTimes(selectedMachineName, date);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(mConnection);
     }
 }

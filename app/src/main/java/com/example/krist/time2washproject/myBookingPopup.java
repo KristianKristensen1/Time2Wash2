@@ -1,14 +1,23 @@
 package com.example.krist.time2washproject;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,6 +40,10 @@ public class myBookingPopup extends Activity {
     TextView tvTimeOfBooking;
     TextView tvNameOfMachine;
     AlarmSwitch alarmSwitch;
+
+    IntentFilter filter = new IntentFilter();
+    MyService myService;
+    WashingTime wt;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +55,7 @@ public class myBookingPopup extends Activity {
         alarmSwitch = new AlarmSwitch();
 
         Bundle extras = getIntent().getExtras();
-        final WashingTime wt = (WashingTime) extras.getSerializable("testag");
+        wt = (WashingTime) extras.getSerializable("testag");
 
         tvTimeOfBooking.setText(wt.getDate() + " " + wt.getTime());
         tvNameOfMachine.setText(wt.getMachine());
@@ -64,36 +77,60 @@ public class myBookingPopup extends Activity {
             @Override
             public void onClick(View view) {
 
-                removeTime(wt.getDate(),wt.getTime(),wt.getMachine());
+                myService.deleTimes(wt.getDate(), wt.getTime(), wt.getMachine());
             }
         });
     }
-    public void removeTime(String chosenDate, String chosentime, String chosenMachine){
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final String docNameMachine = chosenDate + chosentime;
-        final String docNameUser = chosenMachine + chosenDate + chosentime;
-        DocumentReference BookingTimesRef = db.collection("washing_machines").document(chosenMachine).collection("BookedTimes").document(docNameMachine);
-        BookingTimesRef.delete().addOnCompleteListener(new OnCompleteListener<Void>(){
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
-                    Log.d(TAG,"Time deleted");
-                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                    FirebaseUser currentUser = mAuth.getCurrentUser();
-                    db.collection("users").document(currentUser.getEmail()).collection("MyTimes").document(docNameUser).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Log.d(TAG, "Time deleted from MyTimes");
-                                alarmSwitch.cancelAlarm();
-                                finish();
-                            }
-                        }
-                    });
-                }else {
-                    Log.d(TAG,"Something went wrong deleting time");
-                }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        filter.addAction(myService.serviceTaskDeleteTime);
+        if (myService == null){
+            Intent binderIntent = new Intent(this, MyService.class);
+            bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
+            LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult, filter);
+        }
+    }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            MyService.LocalBinder binder = (MyService.LocalBinder) service;
+            myService = binder.getService();
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+        }
+    };
+
+    private BroadcastReceiver onBackgroundServiceResult = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String result = intent.getAction();
+            if(result==null){
+                //Handle error
             }
-        });
+            if (myService.machineList != null){
+                handleBackgroundResult(result);}
+        }
+    };
+    private void handleBackgroundResult(String result){
+
+        if (result == myService.serviceTaskDeleteTime){
+            finish();
+        }
+        if (result == myService.serviceDatabaseFail){
+            Toast.makeText(this,"Something went wrong, please try again", Toast.LENGTH_LONG);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(mConnection);
     }
 }
