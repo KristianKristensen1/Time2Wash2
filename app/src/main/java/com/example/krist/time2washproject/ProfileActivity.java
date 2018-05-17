@@ -1,11 +1,14 @@
 package com.example.krist.time2washproject;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,7 +42,7 @@ public class ProfileActivity extends AppCompatActivity {
     MyService myService;
     Button btBook;
     FirebaseUser currentUser;
-
+    IntentFilter filter = new IntentFilter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,12 +86,22 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        filter.addAction(myService.serviceTaskLoadMyTimes);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadMyTimes();
+        Intent binderIntent = new Intent(this, MyService.class);
+        bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
+        LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult, filter);
+        //myService.loadMyTimes(currentUser.getEmail());
+
     }
 
     /*https://www.youtube.com/watch?v=dvWrniwBJUw*/
@@ -123,6 +136,7 @@ public class ProfileActivity extends AppCompatActivity {
                                        IBinder service) {
             MyService.LocalBinder binder = (MyService.LocalBinder) service;
             myService = binder.getService();
+            myService.loadMyTimes(currentUser.getEmail());
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -140,6 +154,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void loadMyTimes(){
+        /*
         myTimes = new ArrayList<>();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference WashingMyTimeRef = db.collection("users").document(currentUser.getEmail()).collection("MyTimes"); // Kan bruges til at hente tider? og måske ens egne tider nested
@@ -162,5 +177,25 @@ public class ProfileActivity extends AppCompatActivity {
                 washingTimeAdaptor.notifyDataSetChanged();
             }
         });
+        */
+    }
+    private BroadcastReceiver onBackgroundServiceResult = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String result = intent.getAction();
+            if(result==null){
+                //Handle error
+            }
+                handleBackgroundResult(result);}
+
+    };
+    private void handleBackgroundResult(String result){
+
+        if (result == myService.serviceTaskLoadMyTimes){
+            myTimes = myService.myTimes;
+            washingTimeAdaptor.washingTimes = myTimes;
+            washingTimeAdaptor.notifyDataSetChanged();
+        }
     }
 }

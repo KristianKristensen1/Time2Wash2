@@ -2,11 +2,17 @@ package com.example.krist.time2washproject;
 
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -46,7 +52,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner bookingActivity_chooseMachine_dropDown, bookingActivity_chooseDate_dropDown;
     private  WashingTimeAdaptor washingTimeAdaptor;
     private ListView washingTimeListView;
-    ListenerRegistration eventListener;
+    IntentFilter filter = new IntentFilter();
 
     static Context activity;
     //Til DB
@@ -58,6 +64,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     //String selectedDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     String date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+    MyService myService;
 
 
     @Override
@@ -84,7 +91,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedMachineName = machineList.get(position).toString();
-                LoadTimes();
+                myService.loadBookedTimes(selectedMachineName, date);
             }
         });
         washingTimeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -96,11 +103,14 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
                 startActivity(startMyBookingMenuIntent);
             }
         });
+        filter.addAction(myService.serviceTaskLoadBookedTimes);
+        filter.addAction(myService.serviceTaskLoadMachineNames);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        /*
         //Test linjer til DB
         //lav lokale vaskemaskine objekter?
 
@@ -128,13 +138,17 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         });
         //Query washQuery = WashingMachineRef.whereEqualTo("InUse",true);
         //String[] machineListTest = washQuery.get().getResult().getDocuments().toArray();
+        */
+        Intent binderIntent = new Intent(this, MyService.class);
+        bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
+        LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult, filter);
 
     }
 
     @Override
     protected void onStop(){
         super.onStop();
-        eventListener.remove();
+        //eventListener.remove();
     }
 
 
@@ -142,7 +156,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     protected void onResume() {
         super.onResume();
         if(selectedMachineName!=null){
-            LoadTimes();
+            //LoadTimes();
         }
     }
 
@@ -170,6 +184,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         myFragment.show(getSupportFragmentManager(), "date picker");
     }
     public void LoadTimes(){
+        /*
         Query bookedTimesQuery  = db.collection("washing_machines").document(selectedMachineName).collection("BookedTimes");
         eventListener = bookedTimesQuery
                 .whereEqualTo("Date",date)
@@ -190,7 +205,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
                         updateListview();
                     }
                 });
-
+                */
     }
 
 
@@ -237,7 +252,50 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     @Override
     public void onDateSet(String Date) {
         date = Date;
-        LoadTimes();
+        myService.loadBookedTimes(selectedMachineName, date);
         // This method will be called with the date from the `DatePicker`.
+    }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            MyService.LocalBinder binder = (MyService.LocalBinder) service;
+            myService = binder.getService();
+            myService.loadMachines();
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+        }
+    };
+
+    private BroadcastReceiver onBackgroundServiceResult = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String result = intent.getAction();
+            if(result==null){
+                //Handle error
+            }
+            if (myService.machineList != null){
+                handleBackgroundResult(result);}
+        }
+    };
+    private void handleBackgroundResult(String result){
+
+        if (result == myService.serviceTaskLoadBookedTimes){
+            bookedTimes = myService.bookedTimes4Realz;
+            showVacantTimes();
+            updateListview();
+        }
+        if (result == myService.serviceTaskLoadMachineNames){
+            machineList = myService.machineList;
+            selectedMachineName = machineList.get(0).toString();
+            setDropDowns();
+            showVacantTimes();
+            updateListview();
+            myService.loadBookedTimes(selectedMachineName, date);
+        }
     }
 }
