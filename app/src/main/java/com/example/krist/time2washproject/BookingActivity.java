@@ -136,6 +136,7 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     protected void onStop(){
         super.onStop();
         //eventListener.remove();
+        myService.unRegisterEventlister();
     }
 
     /*https://www.youtube.com/watch?v=x6HtXktAoew*/

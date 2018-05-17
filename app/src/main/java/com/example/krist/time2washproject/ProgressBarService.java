@@ -18,8 +18,8 @@ public class ProgressBarService extends Service {
     }
 
 
-    int minuteInMilli = 1000;
-    int numberOfMinutes = 120;
+    int minuteInMilli = 60000;
+    int numberOfMinutes = 120; //two hours in total
     //String timeLeft;
     int minutesLeft;
     int value;

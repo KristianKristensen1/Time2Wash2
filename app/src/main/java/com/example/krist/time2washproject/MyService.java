@@ -144,6 +144,9 @@ public class MyService extends Service{
                     }
                 });
     }
+    public void unRegisterEventlister(){
+        eventListener.remove();
+    }
 
     public void deleTimes(String chosenDate, String chosentime, final String chosenMachine){
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
