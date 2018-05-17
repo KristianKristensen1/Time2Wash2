@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -59,10 +60,29 @@
                 android:textSize="@dimen/text_size_medium"
                 tools:ignore="ButtonStyle" />
         </LinearLayout>
+
         <ListView
             android:id="@+id/profileActivity_myTimes_listView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="151dp" />
+
+        <ProgressBar
+            android:id="@+id/profileActivity_progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="300dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints" />
     </LinearLayout>
 </LinearLayout>
 
