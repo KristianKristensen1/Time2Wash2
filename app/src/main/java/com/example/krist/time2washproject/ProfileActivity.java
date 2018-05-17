@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
@@ -20,6 +21,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -44,7 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
     Button btBook;
     FirebaseUser currentUser;
     IntentFilter filter = new IntentFilter();
-
+    ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +56,7 @@ public class ProfileActivity extends AppCompatActivity {
         etUsername = findViewById(R.id.profileActivity_userName_textView);
         btBook = findViewById(R.id.profileActivity_book_time_button);
         etUsername.setText(currentUser.getDisplayName());
+        progressBar = findViewById(R.id.profileActivity_progressBar);
 
         washingTimeAdaptor = new WashingTimeAdaptor(this, myTimes);
         washingTimeListView = findViewById(R.id.profileActivity_myTimes_listView);
@@ -77,6 +80,8 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
         filter.addAction(myService.serviceTaskLoadMyTimes);
+
+        new ProgressBarClass().execute();
     }
 
     @Override
@@ -87,7 +92,7 @@ public class ProfileActivity extends AppCompatActivity {
             bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
             LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult, filter);
         }else{
-            myService.loadMyTimes(currentUser.getEmail());
+            myService.loadMyTimes();
         }
     }
 
@@ -121,7 +126,7 @@ public class ProfileActivity extends AppCompatActivity {
                                        IBinder service) {
             MyService.LocalBinder binder = (MyService.LocalBinder) service;
             myService = binder.getService();
-            myService.loadMyTimes(currentUser.getEmail());
+            myService.loadMyTimes();
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -154,11 +159,61 @@ public class ProfileActivity extends AppCompatActivity {
             washingTimeAdaptor.washingTimes = myTimes;
             washingTimeAdaptor.notifyDataSetChanged();
         }
+        if (result == myService.serviceDatabaseFail){
+            Toast.makeText(this,"Something went wrong, please try again", Toast.LENGTH_LONG);
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unbindService(mConnection);
+    }
+
+    class ProgressBarClass extends AsyncTask<Void, Integer, Integer>
+    {
+        int minuteInMilli = 1000;
+        int numberOfMinutes = 120;
+        //String timeLeft;
+        int minutesLeft;
+
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            progressBar.setMax(numberOfMinutes);
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values){
+            super.onProgressUpdate(values);
+            progressBar.setProgress(values[0]);
+        }
+
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            for (int i=0; i<numberOfMinutes;i++){
+                publishProgress(i);
+
+                minutesLeft = numberOfMinutes - i;
+
+                /*timeLeft = (String.valueOf(minutesLeft) + " minutes left");
+                textView.setText(timeLeft);*/
+
+                try{
+                    Thread.sleep(minuteInMilli);
+                }
+                catch (InterruptedException ie){
+                    ie.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Integer result)
+        {
+            super.onPostExecute(result);
+            Toast.makeText(getApplicationContext(), "Your Wash Time has now ended.", Toast.LENGTH_LONG).show();
+        }
     }
 }

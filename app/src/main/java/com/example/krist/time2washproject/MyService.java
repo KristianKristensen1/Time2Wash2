@@ -39,6 +39,9 @@ public class MyService extends Service{
     public static final String serviceTaskDeleteTime = "deleteTime";
     public static final String serviceDatabaseFail = "databaseFail";
 
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    FirebaseUser currentUser = mAuth.getCurrentUser();
+
     AlarmSwitch alarmSwitch;
 
 
@@ -84,7 +87,7 @@ public class MyService extends Service{
 
                     }
                 }else{
-                    //BroadCast
+                    BroadcastSender(serviceDatabaseFail);
                 }
                 machineList = machineListTemp;
                 BroadcastSender(serviceTaskLoadMachineNames);
@@ -92,10 +95,10 @@ public class MyService extends Service{
         });
     }
 
-    public void loadMyTimes(String Email){
+    public void loadMyTimes(){
         final ArrayList<WashingTime> myTimesTemp = new ArrayList<>();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference WashingMyTimeRef = db.collection("users").document(Email).collection("MyTimes"); // Kan bruges til at hente tider? og måske ens egne tider nested
+        CollectionReference WashingMyTimeRef = db.collection("users").document(currentUser.getEmail()).collection("MyTimes"); // Kan bruges til at hente tider? og måske ens egne tider nested
         WashingMyTimeRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -110,6 +113,7 @@ public class MyService extends Service{
                     }
                 }else{
                     Log.d("Test", "something whent wrong getting myTimes");
+                    BroadcastSender(serviceDatabaseFail);
                 }
                 myTimes = myTimesTemp;
                 BroadcastSender(serviceTaskLoadMyTimes);
@@ -126,6 +130,7 @@ public class MyService extends Service{
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         if (e != null) {
                             Log.d(TAG, "Listen failed.", e);
+                            BroadcastSender(serviceDatabaseFail);
                             return;
                         }
                         ArrayList<WashingTime> bookedTimes = new ArrayList<>();
@@ -136,7 +141,6 @@ public class MyService extends Service{
                         }
                         bookedTimes4Realz = bookedTimes;
                         BroadcastSender(serviceTaskLoadBookedTimes);
-                        //Broadcast list
                     }
                 });
     }
@@ -151,8 +155,6 @@ public class MyService extends Service{
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
                     Log.d(TAG,"Time deleted");
-                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                    FirebaseUser currentUser = mAuth.getCurrentUser();
                     db.collection("users").document(currentUser.getEmail()).collection("MyTimes").document(docNameUser).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -165,6 +167,7 @@ public class MyService extends Service{
                     });
                 }else {
                     Log.d(TAG,"Something went wrong deleting time");
+                    BroadcastSender(serviceDatabaseFail);
                 }
             }
         });

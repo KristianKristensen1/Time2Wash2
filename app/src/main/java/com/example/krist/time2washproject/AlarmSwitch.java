@@ -33,7 +33,7 @@ public class AlarmSwitch {
         return date;
     }
 
-    public void startAlarm(Calendar c) {
+    public void startAlarm(Calendar c, WashingTime washingTime) {
         AlarmManager alarmManager = (AlarmManager) myContext.getSystemService(Context.ALARM_SERVICE);
         Calendar c24 = Calendar.getInstance();
         c24.setTimeInMillis(c.getTimeInMillis());
@@ -64,6 +64,9 @@ public class AlarmSwitch {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, cNow.getTimeInMillis(), pendingIntentNow);
 
             Intent alarmIntentDone = new Intent(myContext, AlertReceiver.class);
+            alarmIntentDone.putExtra("date", washingTime.getDate());
+            alarmIntentDone.putExtra("time", washingTime.getTime());
+            alarmIntentDone.putExtra("machine", washingTime.getMachine());
             PendingIntent pendingIntentDone = PendingIntent.getBroadcast(myContext, 4, alarmIntentDone, 0);
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, cDone.getTimeInMillis(), pendingIntentDone);
         }
