@@ -13,6 +13,7 @@ import dialog.zoftino.com.dialog.MyDatePickerFragment;
 //https://www.youtube.com/watch?v=yrpimdBRk5Q&list=PLrnPJCHvNZuDR7-cBjRXssxYK0Y5EEKzr&index=3
 public class AlertReceiver extends BroadcastReceiver {
     NotificationHelper notificationHelper;
+    ProfileActivity profileActivity;
     String channelName;
     String channelTitle;
     String channelMessage;
@@ -24,6 +25,8 @@ public class AlertReceiver extends BroadcastReceiver {
         if (notificationHelper == null) {
             notificationHelper = new NotificationHelper(context);
         }
+            assert profileActivity != null;
+            profileActivity.getApplicationContext();
 
         String[] channelIDs = MyDatePickerFragment.getChannelID();
 
@@ -52,6 +55,7 @@ public class AlertReceiver extends BroadcastReceiver {
                 channelTitle = "Time2Wash!";
                 channelMessage = "Your Wash Time begins now";
                 channelImage = R.drawable.ic_wash;
+                profileActivity.onBackPressed();
                 break;
 
             case "Done":
