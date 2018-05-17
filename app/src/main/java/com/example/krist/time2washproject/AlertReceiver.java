@@ -78,7 +78,6 @@ public class AlertReceiver extends BroadcastReceiver {
                 channelTitle = "All Done!";
                 channelMessage = "Your Wash Time has now ended";
                 channelImage = R.drawable.ic_happy;
-
                 deleTimes(date, time, machine);
                 break;
         }
