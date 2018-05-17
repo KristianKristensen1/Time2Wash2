@@ -43,10 +43,13 @@ public class ProfileActivity extends AppCompatActivity {
     private WashingTimeAdaptor washingTimeAdaptor;
     private ListView washingTimeListView;
     MyService myService;
+    ProgressBarService pbService = new ProgressBarService();
     Button btBook;
     FirebaseUser currentUser;
     IntentFilter filter = new IntentFilter();
     ProgressBar progressBar;
+    int max;
+    int progress;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,8 +83,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
         filter.addAction(myService.serviceTaskLoadMyTimes);
-
-        new ProgressBarClass().execute();
+        filter.addAction(pbService.serviceTaskProgressUpdate);
     }
 
     @Override
@@ -147,6 +149,8 @@ public class ProfileActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String result = intent.getAction();
+            max = intent.getIntExtra("maxValue", 0);
+            progress = intent.getIntExtra("valueNow", 0);
             if(result==null){
                 //Handle error
             }
@@ -159,6 +163,10 @@ public class ProfileActivity extends AppCompatActivity {
             washingTimeAdaptor.washingTimes = myTimes;
             washingTimeAdaptor.notifyDataSetChanged();
         }
+        if (result == pbService.serviceTaskProgressUpdate){
+            progressBar.setMax(max);
+            progressBar.setProgress(progress);
+        }
         if (result == myService.serviceDatabaseFail){
             Toast.makeText(this,"Something went wrong, please try again", Toast.LENGTH_LONG);
         }
@@ -170,50 +178,4 @@ public class ProfileActivity extends AppCompatActivity {
         unbindService(mConnection);
     }
 
-    class ProgressBarClass extends AsyncTask<Void, Integer, Integer>
-    {
-        int minuteInMilli = 1000;
-        int numberOfMinutes = 120;
-        //String timeLeft;
-        int minutesLeft;
-
-        @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
-            progressBar.setMax(numberOfMinutes);
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values){
-            super.onProgressUpdate(values);
-            progressBar.setProgress(values[0]);
-        }
-
-        @Override
-        protected Integer doInBackground(Void... voids) {
-            for (int i=0; i<numberOfMinutes;i++){
-                publishProgress(i);
-
-                minutesLeft = numberOfMinutes - i;
-
-                /*timeLeft = (String.valueOf(minutesLeft) + " minutes left");
-                textView.setText(timeLeft);*/
-
-                try{
-                    Thread.sleep(minuteInMilli);
-                }
-                catch (InterruptedException ie){
-                    ie.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Integer result)
-        {
-            super.onPostExecute(result);
-            Toast.makeText(getApplicationContext(), "Your Wash Time has now ended.", Toast.LENGTH_LONG).show();
-        }
-    }
 }

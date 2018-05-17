@@ -25,6 +25,9 @@
             android:name=".MyService"
             android:enabled="true"
             android:exported="true"></service>
+        <service android:name=".ProgressBarService"
+            android:enabled="true">
+        </service>
 
 <receiver android:name=".AlertReceiver"/>
     </application>
