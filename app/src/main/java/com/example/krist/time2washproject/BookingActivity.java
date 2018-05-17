@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -78,6 +79,20 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         setDropDowns();
         updateListview();
         activity = BookingActivity.this;
+
+        if (savedInstanceState != null) {
+            date = savedInstanceState.getString("date");
+            selectedMachineName = savedInstanceState.getString("machine");
+            /*
+            if (myService == null){
+                Intent binderIntent = new Intent(this, MyService.class);
+                bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
+                LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult, filter);
+            }else{
+                myService.loadBookedTimes(selectedMachineName, date);
+            }
+            */
+        }
 
         bookingActivity_chooseDate_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -202,6 +217,10 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
             MyService.LocalBinder binder = (MyService.LocalBinder) service;
             myService = binder.getService();
             myService.loadMachines();
+            if (date != null && selectedMachineName != null){
+                myService.loadBookedTimes(selectedMachineName, date);
+            }
+
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -229,11 +248,16 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         }
         if (result == myService.serviceTaskLoadMachineNames){
             machineList = myService.machineList;
-            selectedMachineName = machineList.get(0).toString();
+            if (selectedMachineName == null){
+                selectedMachineName = machineList.get(0).toString();
+            }
             setDropDowns();
             showVacantTimes();
             updateListview();
             myService.loadBookedTimes(selectedMachineName, date);
+        }
+        if (result == myService.serviceDatabaseFail){
+            Toast.makeText(this,"Something went wrong, please try again", Toast.LENGTH_LONG);
         }
     }
 
@@ -241,5 +265,12 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     protected void onDestroy() {
         super.onDestroy();
         unbindService(mConnection);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString("date", date);
+        outState.putString("machine", selectedMachineName);
+        super.onSaveInstanceState(outState);
     }
 }

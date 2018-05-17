@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -86,7 +87,7 @@ public class ProfileActivity extends AppCompatActivity {
             bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
             LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult, filter);
         }else{
-            myService.loadMyTimes(currentUser.getEmail());
+            myService.loadMyTimes();
         }
     }
 
@@ -120,7 +121,7 @@ public class ProfileActivity extends AppCompatActivity {
                                        IBinder service) {
             MyService.LocalBinder binder = (MyService.LocalBinder) service;
             myService = binder.getService();
-            myService.loadMyTimes(currentUser.getEmail());
+            myService.loadMyTimes();
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -152,6 +153,9 @@ public class ProfileActivity extends AppCompatActivity {
             myTimes = myService.myTimes;
             washingTimeAdaptor.washingTimes = myTimes;
             washingTimeAdaptor.notifyDataSetChanged();
+        }
+        if (result == myService.serviceDatabaseFail){
+            Toast.makeText(this,"Something went wrong, please try again", Toast.LENGTH_LONG);
         }
     }
 

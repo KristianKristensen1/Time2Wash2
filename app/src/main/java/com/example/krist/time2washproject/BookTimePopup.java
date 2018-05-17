@@ -82,7 +82,7 @@ public class BookTimePopup extends Activity {
                     date = alarmSwitch.handleDateInput(wt.getDate());
                     calendar.setTime(date);
                     calendar.set(Calendar.HOUR_OF_DAY, time);
-                    alarmSwitch.startAlarm(calendar);
+                    alarmSwitch.startAlarm(calendar, wt);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
