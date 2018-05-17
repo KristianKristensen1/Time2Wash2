@@ -5,11 +5,14 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -25,7 +28,6 @@ import static com.example.krist.time2washproject.LoginActivity.TAG;
 //https://www.youtube.com/watch?v=yrpimdBRk5Q&list=PLrnPJCHvNZuDR7-cBjRXssxYK0Y5EEKzr&index=3
 public class AlertReceiver extends BroadcastReceiver {
     NotificationHelper notificationHelper;
-    ProfileActivity profileActivity;
     String channelName;
     String channelTitle;
     String channelMessage;
@@ -35,14 +37,14 @@ public class AlertReceiver extends BroadcastReceiver {
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
 
+    MyService myService;
+    IntentFilter filter = new IntentFilter();
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (notificationHelper == null) {
             notificationHelper = new NotificationHelper(context);
         }
-            assert profileActivity != null;
-            profileActivity.getApplicationContext();
 
         String date = intent.getStringExtra("date");
         String time = intent.getStringExtra("time");
@@ -74,7 +76,8 @@ public class AlertReceiver extends BroadcastReceiver {
                 channelTitle = "Time2Wash!";
                 channelMessage = "Your Wash Time begins now";
                 channelImage = R.drawable.ic_wash;
-                profileActivity.onBackPressed();
+                Intent progressbarIntent = new Intent(context,ProgressBarService.class);
+                context.startService(progressbarIntent);
                 break;
 
             case "Done":
@@ -120,5 +123,7 @@ public class AlertReceiver extends BroadcastReceiver {
             }
         });
     }
+
+
 }
 
