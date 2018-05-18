@@ -148,7 +148,7 @@ public class MyService extends Service{
         eventListener.remove();
     }
 
-    public void deleTimes(String chosenDate, String chosentime, final String chosenMachine){
+    public void deleteTimes(String chosenDate, String chosentime, final String chosenMachine){
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         final String docNameMachine = chosenDate + chosentime;
         final String docNameUser = chosenMachine + chosenDate + chosentime;

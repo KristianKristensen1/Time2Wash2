@@ -77,7 +77,7 @@ public class myBookingPopup extends Activity {
             @Override
             public void onClick(View view) {
 
-                myService.deleTimes(wt.getDate(), wt.getTime(), wt.getMachine());
+                myService.deleteTimes(wt.getDate(), wt.getTime(), wt.getMachine());
             }
         });
     }

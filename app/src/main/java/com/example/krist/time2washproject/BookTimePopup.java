@@ -135,6 +135,7 @@ public class BookTimePopup extends Activity {
     private void handleBackgroundResult(String result){
 
         if (result == myService.serviceTaskBookTime){
+            setResult(Activity.RESULT_OK);
             finish();
         }
         if (result == myService.serviceDatabaseFail){

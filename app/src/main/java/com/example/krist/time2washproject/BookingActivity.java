@@ -1,5 +1,6 @@
 package com.example.krist.time2washproject;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
@@ -115,11 +116,22 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
                 Intent startMyBookingMenuIntent = new Intent(BookingActivity.this, BookTimePopup.class);
                 WashingTime wt = vacantTimes.get(position);
                 startMyBookingMenuIntent.putExtra("chosenWashTime", wt);
-                startActivity(startMyBookingMenuIntent);
+                startActivityForResult(startMyBookingMenuIntent, 1);
+                //startActivity(startMyBookingMenuIntent);
             }
         });
         filter.addAction(myService.serviceTaskLoadBookedTimes);
         filter.addAction(myService.serviceTaskLoadMachineNames);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1){
+            if (resultCode == Activity.RESULT_OK){
+                Toast.makeText(this, "Time was booked", Toast.LENGTH_LONG);
+            }
+        }
     }
 
     @Override
