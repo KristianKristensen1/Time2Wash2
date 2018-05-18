@@ -60,6 +60,7 @@ public class myBookingPopup extends Activity {
         tvTimeOfBooking.setText(wt.getDate() + " " + wt.getTime());
         tvNameOfMachine.setText(wt.getMachine());
 
+        //Scales popup window. Inspired from:
         //https://www.youtube.com/watch?v=fn5OlqQuOCk
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -73,15 +74,16 @@ public class myBookingPopup extends Activity {
                 finish();
             }
         });
+        //Deletes booked time
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 myService.deleteTimes(wt.getDate(), wt.getTime(), wt.getMachine());
             }
         });
     }
 
+    //Binds to service
     @Override
     protected void onStart() {
         super.onStart();
@@ -94,7 +96,6 @@ public class myBookingPopup extends Activity {
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
-
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
@@ -106,10 +107,10 @@ public class myBookingPopup extends Activity {
         }
     };
 
+    //Receives broadcasts from service and handles result depending on type.
     private BroadcastReceiver onBackgroundServiceResult = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             String result = intent.getAction();
             if(result==null){
                 //Handle error
@@ -119,7 +120,6 @@ public class myBookingPopup extends Activity {
         }
     };
     private void handleBackgroundResult(String result){
-
         if (result == myService.serviceTaskDeleteTime){
             finish();
         }

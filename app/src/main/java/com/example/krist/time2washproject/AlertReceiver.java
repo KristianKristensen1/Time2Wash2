@@ -37,9 +37,6 @@ public class AlertReceiver extends BroadcastReceiver {
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
 
-    MyService myService;
-    IntentFilter filter = new IntentFilter();
-
     @Override
     public void onReceive(Context context, Intent intent) {
         if (notificationHelper == null) {
@@ -93,9 +90,7 @@ public class AlertReceiver extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationHelper.CreateChannels(channelIDs[indexID], channelName);
         }
-
         NotificationCompat.Builder builder = notificationHelper.getChannelNotification(channelIDs[indexID], channelTitle, channelMessage, channelImage);
-
         notificationHelper.getNotificationManager().notify(indexID, builder.build());
     }
 
@@ -123,7 +118,5 @@ public class AlertReceiver extends BroadcastReceiver {
             }
         });
     }
-
-
 }
 

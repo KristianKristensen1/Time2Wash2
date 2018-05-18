@@ -63,7 +63,6 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     ArrayList<WashingTime> bookedTimes;
     ArrayList<WashingTime> vacantTimes;
     String selectedMachineName;
-    //String selectedDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     String date = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
     MyService myService;
@@ -84,15 +83,6 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
         if (savedInstanceState != null) {
             date = savedInstanceState.getString("date");
             selectedMachineName = savedInstanceState.getString("machine");
-            /*
-            if (myService == null){
-                Intent binderIntent = new Intent(this, MyService.class);
-                bindService(binderIntent, mConnection, Context.BIND_AUTO_CREATE);
-                LocalBroadcastManager.getInstance(this).registerReceiver(onBackgroundServiceResult, filter);
-            }else{
-                myService.loadBookedTimes(selectedMachineName, date);
-            }
-            */
         }
 
         bookingActivity_chooseDate_button.setOnClickListener(new View.OnClickListener() {
@@ -117,7 +107,6 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
                 WashingTime wt = vacantTimes.get(position);
                 startMyBookingMenuIntent.putExtra("chosenWashTime", wt);
                 startActivityForResult(startMyBookingMenuIntent, 1);
-                //startActivity(startMyBookingMenuIntent);
             }
         });
         filter.addAction(myService.serviceTaskLoadBookedTimes);
@@ -147,37 +136,32 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
     @Override
     protected void onStop(){
         super.onStop();
-        //eventListener.remove();
         myService.unRegisterEventlister();
     }
 
     /*https://www.youtube.com/watch?v=x6HtXktAoew*/
     private void setDropDowns() {
         machineArrayAdapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, machineList);
-        //dateArrayAdapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, dateList);
         machineBetterSpinner = bookingActivity_chooseMachine_dropDown;
         dateBetterSpinner = bookingActivity_chooseDate_dropDown;
         machineBetterSpinner.setAdapter(machineArrayAdapter);
-//        dateBetterSpinner.setAdapter(dateArrayAdapter);
     }
 
     private void findViews() {
         bookingActivity_chooseMachine_dropDown = findViewById(R.id.bookingActivity_chooseMachine_dropDown);
         bookingActivity_chooseDate_button = findViewById(R.id.bookingActivity_chooseDate_button);
         washingTimeListView = findViewById(R.id.bookingActivity_availableTimes_listView);
-        //bookingActivity_chooseDate_dropDown = findViewById(R.id.bookingActivity_chooseDate_dropDown);
     }
 
     //http://www.zoftino.com/android-datepicker-example
     public void showDatePicker(View v) {
-        //MyDatePickerFragment myFragment = new MyDatePickerFragment();
         MyDatePickerFragment myFragment = MyDatePickerFragment.newInstance(this);
         myFragment.show(getSupportFragmentManager(), "date picker");
     }
 
+    //Creates a list with all times for the day and machine and removes the booked times.
     public void showVacantTimes(){
         ArrayList<WashingTime> WashingTimeArrayList = new ArrayList<>();
-        //Hardcoded list with My booked times for test
         for(int i = 0; i < 7; i++){
             WashingTimeArrayList.add(new WashingTime("This is the time", "01.05.2018", "Machine1"));
         }
@@ -200,26 +184,19 @@ public class BookingActivity extends AppCompatActivity implements MyDatePickerFr
 
     public void updateListview(){
         ArrayList<WashingTime> WashingTimeArrayList = vacantTimes;
-        //Hardcoded list with My booked times for test
-
         washingTimeAdaptor = new WashingTimeAdaptor(this, WashingTimeArrayList);
-        //washingTimeListView = findViewById(R.id.bookingActivity_availableTimes_listView);
         washingTimeListView.setAdapter(washingTimeAdaptor);
-
-        // washingTimeAdaptor = new WashingTimeAdaptor(this, WashingTimeArrayList);
-        // washingTimeListView = findViewById(R.id.bookingActivity_availableTimes_listView);
-        // washingTimeListView.setAdapter(washingTimeAdaptor);
     }
 
     public static Context getActivity() {
         return activity;
     }
 
+    // This method will be called with the date from the `DatePicker`.
     @Override
     public void onDateSet(String Date) {
         date = Date;
         myService.loadBookedTimes(selectedMachineName, date);
-        // This method will be called with the date from the `DatePicker`.
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {

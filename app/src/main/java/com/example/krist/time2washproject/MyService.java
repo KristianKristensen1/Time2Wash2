@@ -38,26 +38,23 @@ public class MyService extends Service{
     public static final String serviceTaskBookTime = "bookTime";
     public static final String serviceTaskDeleteTime = "deleteTime";
     public static final String serviceDatabaseFail = "databaseFail";
+    private static final String TAG = "service debug";
 
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = mAuth.getCurrentUser();
-
     AlarmSwitch alarmSwitch;
-
-
-    private static final String TAG = "service debug";
     ArrayList machineList;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    ListenerRegistration eventListener;
+    ArrayList<WashingTime> bookedTimes4Realz;
+    ArrayList<WashingTime> myTimes;
 
+    private final IBinder mBinder = new LocalBinder();
     public class LocalBinder extends Binder {
         MyService getService() {
             return MyService.this;
         }
     }
-    private final IBinder mBinder = new LocalBinder();
-    ListenerRegistration eventListener;
-    ArrayList<WashingTime> bookedTimes4Realz;
-    ArrayList<WashingTime> myTimes;
 
     @Override
     public void onCreate() {
@@ -71,6 +68,7 @@ public class MyService extends Service{
         return mBinder;
     }
 
+    //Loads the available machines
     public void loadMachines(){
         final ArrayList machineListTemp = new ArrayList();
         CollectionReference WashingMachineRef = db.collection("washing_machines"); // Kan bruges til at hente tider? og måske ens egne tider nested
@@ -95,6 +93,7 @@ public class MyService extends Service{
         });
     }
 
+    //Loads the times booked by the user
     public void loadMyTimes(){
         final ArrayList<WashingTime> myTimesTemp = new ArrayList<>();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -104,15 +103,13 @@ public class MyService extends Service{
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        //Toast.makeText(getActivity(),"it happened" + document.getData().get("Name"),Toast.LENGTH_LONG).show();
-                        //Log.d(TAG,document.getId() + "=>" + document.getData());
                         WashingTime washingTimeTest = document.toObject(WashingTime.class);
-                        Log.d("Test","" + washingTimeTest.getMachine() + " " + washingTimeTest.getDate() + " " + washingTimeTest.getTime());
+                        Log.d("MyService","" + washingTimeTest.getMachine() + " " + washingTimeTest.getDate() + " " + washingTimeTest.getTime());
                         myTimesTemp.add(washingTimeTest);
 
                     }
                 }else{
-                    Log.d("Test", "something whent wrong getting myTimes");
+                    Log.d("MyService", "something went wrong getting myTimes");
                     BroadcastSender(serviceDatabaseFail);
                 }
                 myTimes = myTimesTemp;
@@ -121,6 +118,7 @@ public class MyService extends Service{
         });
     }
 
+    //Loads the times booked on a machine on the chosen date
     public void loadBookedTimes(String MachineName, String Date){
         Query bookedTimesQuery  = db.collection("washing_machines").document(MachineName).collection("BookedTimes");
         eventListener = bookedTimesQuery
@@ -144,10 +142,12 @@ public class MyService extends Service{
                     }
                 });
     }
+
     public void unRegisterEventlister(){
         eventListener.remove();
     }
 
+    //Removes a booked time from the database
     public void deleteTimes(String chosenDate, String chosentime, final String chosenMachine){
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         final String docNameMachine = chosenDate + chosentime;
@@ -176,6 +176,7 @@ public class MyService extends Service{
         });
     }
 
+    //Books a time
     public void bookTime(String chosenDate, String chosentime, final String chosenMachine){
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference BookingTimesRef = db.collection("washing_machines").document(chosenMachine).collection("BookedTimes");
@@ -208,6 +209,7 @@ public class MyService extends Service{
         });
     }
 
+    //Notifies different activities that database communication is complete
     public void BroadcastSender(String Result) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(Result);

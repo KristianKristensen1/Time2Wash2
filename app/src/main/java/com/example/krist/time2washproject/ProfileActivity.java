@@ -75,6 +75,7 @@ public class ProfileActivity extends AppCompatActivity {
                 startActivity(startMyBookingMenuIntent);
             }
         });
+        //Starts "Booking" activity
         btBook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,10 +83,12 @@ public class ProfileActivity extends AppCompatActivity {
                 startActivity(profileIntent);
             }
         });
+
         filter.addAction(myService.serviceTaskLoadMyTimes);
         filter.addAction(pbService.serviceTaskProgressUpdate);
     }
 
+    //Checks if bound to service and binds if not.
     @Override
     protected void onResume() {
         super.onResume();
@@ -98,6 +101,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    //Creates three-point menu in corner.
     /*https://www.youtube.com/watch?v=dvWrniwBJUw*/
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -105,6 +109,7 @@ public class ProfileActivity extends AppCompatActivity {
         return true;
     }
 
+    //Handles when the user selects item in three-point menu
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -135,6 +140,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
     };
 
+    //Closes the app instead of navigating to login activity. Inspired from:
     //https://stackoverflow.com/questions/14001963/finish-all-activities-at-a-time
     @Override
     public void onBackPressed() {
@@ -145,6 +151,7 @@ public class ProfileActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    //Receives broadcast from service and handles that result
     private BroadcastReceiver onBackgroundServiceResult = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -156,6 +163,8 @@ public class ProfileActivity extends AppCompatActivity {
             }
                 handleBackgroundResult(result);}
     };
+
+    //Handles result from service, depending on type of result.
     private void handleBackgroundResult(String result){
 
         if (result == myService.serviceTaskLoadMyTimes){

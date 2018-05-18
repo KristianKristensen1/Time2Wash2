@@ -23,10 +23,10 @@ import java.util.Date;
 import java.util.Locale;
 
 /*
+This class is inspired from the following websites:
 http://www.zoftino.com/android-datepicker-example
+https://stackoverflow.com/questions/24558835/how-can-i-pass-the-date-chosen-in-a-date-picker-to-the-activity-which-contains-t
 */
-
-//https://stackoverflow.com/questions/24558835/how-can-i-pass-the-date-chosen-in-a-date-picker-to-the-activity-which-contains-t
 
 public class MyDatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
@@ -45,7 +45,6 @@ public class MyDatePickerFragment extends DialogFragment implements DatePickerDi
     }
 
     public static String[] channelID = {"24", "1", "Now", "Done"};
-
 
     public static MyDatePickerFragment newInstance(DatePickerFragmentListener listener) {
         MyDatePickerFragment fragment = new MyDatePickerFragment();
